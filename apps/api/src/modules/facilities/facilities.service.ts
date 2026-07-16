@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 
 import { SupabaseService } from "../../config/supabase.service";
 
@@ -17,6 +21,37 @@ export class FacilitiesService {
       "ambulance_unit",
       "independent_vendor",
     ];
+  }
+
+  async getPublicFacilities() {
+    const { data, error } = await this.supabaseService.adminClient
+      .from("facilities")
+      .select("id, name, type, city")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return data;
+  }
+
+  async getPublicFacilityById(id: string) {
+    const { data, error } = await this.supabaseService.adminClient
+      .from("facilities")
+      .select("id, tenant_id, name, type, city, contact_number, serves_patients_directly")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    if (!data) {
+      throw new NotFoundException("Facility not found.");
+    }
+
+    return data;
   }
 
   async createFacility(dto: CreateFacilityDto) {

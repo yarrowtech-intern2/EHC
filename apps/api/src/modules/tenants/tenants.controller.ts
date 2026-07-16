@@ -12,9 +12,13 @@ export class TenantsController {
     return this.tenantsService.getTenantTemplate();
   }
 
+  @Get("public")
+  getPublicTenants() {
+    return this.tenantsService.getPublicTenants();
+  }
+
   @Post()
   createTenant(@Body() dto: CreateTenantDto) {
     return this.tenantsService.createTenant(dto);
   }
 }
-

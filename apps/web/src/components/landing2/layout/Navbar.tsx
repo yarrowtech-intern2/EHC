@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Ambulance, HeartPulse } from "lucide-react";
+import { Menu, X, Cross } from "lucide-react";
 
 const links = [
   { label: "Services", href: "#services" },
-  { label: "How It Works", href: "#how-it-works" },
   { label: "Platform", href: "#platform" },
   { label: "Partners", href: "#partners" },
   { label: "Security", href: "#security" },
@@ -27,70 +26,68 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white/90 backdrop-blur-xl border-b border-gray-100"
+          ? "bg-[#eeedfa]/92 backdrop-blur-md"
           : "bg-transparent"
       }`}
       role="banner"
     >
       <nav
-        className="mx-auto max-w-[1200px] flex items-center justify-between px-5 sm:px-8 h-16"
+        className="flex h-16 w-full items-center justify-between px-5 md:px-[8.4vw] xl:h-[76px]"
         role="navigation"
         aria-label="Main navigation"
       >
-        <Link href="/landing2" className="flex items-center gap-2 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white">
-            <HeartPulse className="h-4 w-4" />
-          </div>
-          <span className="text-[15px] font-semibold text-primary-text tracking-tight">
+        <Link href="/" className="flex shrink-0 items-center gap-1.5 xl:gap-2">
+          <span
+            className="relative h-5 w-5 overflow-hidden rounded-full bg-brand xl:h-7 xl:w-7"
+            aria-hidden="true"
+          >
+            <span className="absolute left-[5px] top-[-3px] h-7 w-2.5 rotate-[-42deg] rounded-full bg-[#eeedfa] xl:left-[7px] xl:top-[-4px] xl:h-10 xl:w-3.5" />
+            <span className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-[#eeedfa] xl:bottom-1.5 xl:right-1.5 xl:h-2 xl:w-2" />
+          </span>
+          <span className="text-[14px] font-bold text-[#090b13] xl:text-[18px]">
             EHC
           </span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-0.5">
+        <div className="ml-auto hidden items-center gap-4 md:flex xl:gap-8">
           {links.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="px-3.5 py-1.5 text-[13px] font-medium text-secondary-text hover:text-primary-text rounded-lg transition-colors"
+              className="text-[11px] font-medium text-[#090b13] transition-colors hover:text-brand xl:text-[14px]"
             >
               {link.label}
             </a>
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="ml-5 hidden items-center gap-2 md:flex xl:ml-10 xl:gap-3">
           <Link
             href="/login"
-            className="px-4 py-1.5 text-[13px] font-medium text-secondary-text hover:text-primary-text transition-colors"
+            className="flex h-[22px] items-center bg-[#aaa6ff] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-brand xl:h-9 xl:px-5 xl:text-[14px]"
           >
-            Sign In
-          </Link>
-          <Link
-            href="/register"
-            className="px-4 py-1.5 text-[13px] font-medium text-white bg-primary-text rounded-full hover:bg-gray-800 transition-colors"
-          >
-            Get Started
+            Sign in
           </Link>
           <Link
             href="/emergency-ambulance"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium text-white bg-emergency rounded-full hover:bg-red-600 transition-colors"
+            className="flex h-[22px] w-[22px] items-center justify-center bg-[#ffd5d8] text-emergency transition-colors hover:bg-[#ffc2c6] xl:h-9 xl:w-9"
+            aria-label="Emergency Ambulance"
           >
-            <Ambulance className="h-3.5 w-3.5" />
-            Emergency
+            <Cross className="h-3.5 w-3.5 fill-emergency stroke-emergency xl:h-5 xl:w-5" />
           </Link>
         </div>
 
-        <div className="flex lg:hidden items-center gap-2">
+        <div className="flex items-center gap-2 md:hidden">
           <Link
             href="/emergency-ambulance"
-            className="flex items-center px-2.5 py-1.5 text-[11px] font-semibold text-white bg-emergency rounded-full"
+            className="flex h-8 w-8 items-center justify-center bg-[#ffd5d8] text-emergency"
             aria-label="Emergency Ambulance"
           >
-            <Ambulance className="h-3.5 w-3.5" />
+            <Cross className="h-4 w-4 fill-emergency stroke-emergency" />
           </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 rounded-lg text-primary-text"
+            className="p-2 text-primary-text"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
@@ -106,7 +103,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="lg:hidden fixed inset-0 top-16 bg-white z-40"
+            className="fixed inset-0 top-16 z-40 bg-[#eeedfa] md:hidden"
           >
             <div className="flex flex-col p-6 gap-0.5">
               {links.map((link) => (
@@ -123,14 +120,14 @@ export function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="py-3 text-center text-[14px] font-medium text-primary-text border border-gray-200 rounded-full"
+                  className="bg-[#aaa6ff] py-3 text-center text-[14px] font-medium text-white"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
                   onClick={() => setMobileOpen(false)}
-                  className="py-3 text-center text-[14px] font-medium text-white bg-primary-text rounded-full"
+                  className="bg-amber-400 py-3 text-center text-[14px] font-medium text-primary-text"
                 >
                   Get Started
                 </Link>

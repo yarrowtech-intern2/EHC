@@ -35,6 +35,18 @@ export default function AdminPage() {
               <Link href="/admin/tenant-setup">
                 <UIButton>Create tenant</UIButton>
               </Link>
+              <Link href="/admin/slots">
+                <UIButton variant="secondary">Manage slots</UIButton>
+              </Link>
+              <Link href="/admin/appointments">
+                <UIButton variant="secondary">Appointments</UIButton>
+              </Link>
+              <Link href="/admin/team">
+                <UIButton variant="secondary">Team</UIButton>
+              </Link>
+              <Link href="/doctor">
+                <UIButton variant="secondary">Doctor workspace</UIButton>
+              </Link>
               <Link href="/">
                 <UIButton variant="secondary">Back to overview</UIButton>
               </Link>
@@ -100,9 +112,30 @@ export default function AdminPage() {
               </div>
             </div>
           </DashboardCard>
+          <DashboardCard
+            eyebrow="Care delivery"
+            title="Doctor workspace"
+            description="Doctors can now pick up their assigned schedule, review patient context, and complete lightweight consultation notes."
+          >
+            <div className="space-y-3 text-sm text-slate-600">
+              <div className="rounded-2xl bg-cloud px-4 py-3">Assigned from admin-created slots</div>
+              <div className="rounded-2xl bg-cloud px-4 py-3">Consultation note capture for Phase 1</div>
+              <div className="rounded-2xl bg-cloud px-4 py-3">Status flow: confirmed to completed</div>
+            </div>
+          </DashboardCard>
+          <DashboardCard
+            eyebrow="Access control"
+            title="Staff role mapping"
+            description="Tenant admins can now assign existing registered users into doctor, pharmacy, ambulance, and other operational roles."
+          >
+            <div className="space-y-3 text-sm text-slate-600">
+              <div className="rounded-2xl bg-cloud px-4 py-3">Tenant-wide or facility-level roles</div>
+              <div className="rounded-2xl bg-cloud px-4 py-3">Email-based assignment for existing users</div>
+              <div className="rounded-2xl bg-cloud px-4 py-3">Supports doctor slot assignment workflow</div>
+            </div>
+          </DashboardCard>
         </section>
       </div>
     </main>
   );
 }
-

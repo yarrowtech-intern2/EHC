@@ -22,6 +22,19 @@ export class TenantsService {
     };
   }
 
+  async getPublicTenants() {
+    const { data, error } = await this.supabaseService.adminClient
+      .from("tenants")
+      .select("id, legal_name, display_name, category, country_code, status, created_at")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return data;
+  }
+
   async createTenant(dto: CreateTenantDto) {
     const { data, error } = await this.supabaseService.adminClient
       .from("tenants")

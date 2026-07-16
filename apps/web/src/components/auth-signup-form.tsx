@@ -2,52 +2,58 @@
 
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  LoaderCircle,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { UIButton } from "@/components/ui-button";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { UIButton } from "@/components/ui-button";
+import {
+  getAuthRedirectPath,
+  getSupabaseBrowserClient,
+  savePendingSignup,
+  type AppActorType,
+} from "@/lib/supabase-browser";
 
 const signupSchema = z
   .object({
     actorType: z.enum(["patient", "tenant_admin", "facility_operator"]),
-    signupMethod: z.enum(["email_password", "google", "magic_link", "phone_otp"]),
+    signupMethod: z.enum(["email_password", "google", "magic_link"]),
     fullName: z.string().min(2, "Enter a valid name"),
     email: z.string().email("Enter a valid email").optional().or(z.literal("")),
-    phone: z.string().optional(),
     organizationName: z.string().optional(),
+    password: z.string().optional(),
   })
   .superRefine((value, context) => {
-    if (
-      ["email_password", "magic_link", "google"].includes(value.signupMethod) &&
-      !value.email
-    ) {
+    if (!value.email) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Email is required for this signup method",
+        message: "Email is required for this sign-up method",
         path: ["email"],
       });
     }
 
-    if (value.signupMethod === "phone_otp" && !value.phone) {
+    if (value.signupMethod === "email_password" && (!value.password || value.password.length < 8)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Phone number is required for phone OTP",
-        path: ["phone"],
+        message: "Password must be at least 8 characters",
+        path: ["password"],
       });
     }
   });
 
 type SignupValues = z.infer<typeof signupSchema>;
 
-const steps = [
-  "Choose role",
-  "Choose sign-in",
-  "Identity details",
-  "Review",
-];
+const steps = ["Choose role", "Choose sign-in", "Identity details", "Review"];
 
 const roleChoices = [
   {
@@ -71,7 +77,7 @@ const methodChoices = [
   {
     value: "email_password",
     title: "Email and password",
-    text: "Good default for most users.",
+    text: "Create an account directly in EHC.",
   },
   {
     value: "google",
@@ -83,26 +89,23 @@ const methodChoices = [
     title: "Magic link",
     text: "Passwordless email access.",
   },
-  {
-    value: "phone_otp",
-    title: "Phone OTP",
-    text: "Best for mobile-first patient onboarding.",
-  },
 ] as const;
 
 export function AuthSignupForm() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       actorType: "patient",
-      signupMethod: "phone_otp",
+      signupMethod: "email_password",
       fullName: "",
       email: "",
-      phone: "",
       organizationName: "",
+      password: "",
     },
   });
 
@@ -115,11 +118,10 @@ export function AuthSignupForm() {
       { label: "Role", value: actorType.replace("_", " ") },
       { label: "Method", value: signupMethod.replace("_", " ") },
       { label: "Name", value: form.getValues("fullName") || "Not added" },
-      { label: "Email", value: form.getValues("email") || "Skipped" },
-      { label: "Phone", value: form.getValues("phone") || "Skipped" },
+      { label: "Email", value: form.getValues("email") || "Required" },
       {
         label: "Organization",
-        value: form.getValues("organizationName") || (isPatient ? "Not needed" : "Skipped"),
+        value: form.getValues("organizationName") || (isPatient ? "Independent patient" : "Skipped"),
       },
     ],
     [actorType, form, isPatient, signupMethod],
@@ -127,7 +129,7 @@ export function AuthSignupForm() {
 
   const moveNext = async () => {
     if (currentStep === 2) {
-      const valid = await form.trigger(["fullName", "email", "phone", "organizationName"]);
+      const valid = await form.trigger(["fullName", "email", "organizationName", "password"]);
       if (!valid) {
         return;
       }
@@ -141,17 +143,12 @@ export function AuthSignupForm() {
   const skipOptional = () => {
     if (currentStep === 2) {
       form.setValue("organizationName", "");
-      if (signupMethod !== "phone_otp") {
-        form.setValue("phone", "");
-      }
-      if (signupMethod === "phone_otp") {
-        form.setValue("email", "");
-      }
     }
     moveNext();
   };
 
   const onSubmit = form.handleSubmit(async (values) => {
+    const supabase = getSupabaseBrowserClient();
     setSubmitMessage(null);
 
     try {
@@ -160,25 +157,105 @@ export function AuthSignupForm() {
         session: { id: string };
       }>("/auth/signup/begin", {
         method: "POST",
-        body: values,
+        body: {
+          actorType: values.actorType,
+          signupMethod: values.signupMethod,
+          email: values.email,
+          organizationName: values.organizationName,
+          fullName: values.fullName,
+        },
       });
 
-      setSubmitMessage(
-        `${response.message}. Session ${response.session.id} created for ${values.actorType}.`,
-      );
-      form.reset({
-        actorType: "patient",
-        signupMethod: "phone_otp",
-        fullName: "",
-        email: "",
-        phone: "",
-        organizationName: "",
+      const onboardingSessionId = response.session.id;
+      const actor = values.actorType as AppActorType;
+      const redirectTo = `${window.location.origin}/auth/callback`;
+
+      if (values.signupMethod === "google") {
+        savePendingSignup({
+          actorType: actor,
+          signupMethod: "google",
+          onboardingSessionId,
+          nextPath: getAuthRedirectPath(actor),
+        });
+
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo,
+          },
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        return;
+      }
+
+      if (values.signupMethod === "magic_link") {
+        savePendingSignup({
+          actorType: actor,
+          signupMethod: "magic_link",
+          onboardingSessionId,
+          nextPath: getAuthRedirectPath(actor),
+        });
+
+        const { error } = await supabase.auth.signInWithOtp({
+          email: values.email!,
+          options: {
+            emailRedirectTo: redirectTo,
+            data: {
+              actorType: values.actorType,
+              fullName: values.fullName,
+              onboardingSessionId,
+            },
+          },
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        setSubmitMessage("Magic link sent. Open the email to continue sign in.");
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email!,
+        password: values.password!,
+        options: {
+          emailRedirectTo: redirectTo,
+          data: {
+            actorType: values.actorType,
+            fullName: values.fullName,
+            onboardingSessionId,
+          },
+        },
       });
-      setCurrentStep(0);
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.session?.access_token) {
+        await apiRequest("/auth/sync-profile", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${data.session.access_token}`,
+          },
+          body: {
+            actorType: values.actorType,
+            onboardingSessionId,
+          },
+        });
+
+        router.push(getAuthRedirectPath(actor));
+        return;
+      }
+
+      setSubmitMessage("Account created. Check your email to verify and continue.");
     } catch (error) {
-      setSubmitMessage(
-        error instanceof Error ? error.message : "Signup flow could not be started.",
-      );
+      setSubmitMessage(error instanceof Error ? error.message : "Signup flow could not be started.");
     }
   });
 
@@ -186,9 +263,7 @@ export function AuthSignupForm() {
     <div className="rounded-[32px] border border-sapphire/10 bg-cloud p-5 shadow-card sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-azure">
-            Signup flow
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-azure">Signup flow</p>
           <h2 className="mt-2 text-2xl font-semibold text-ink">Patient-first onboarding</h2>
         </div>
         <div className="rounded-full bg-cloud px-3 py-2 text-xs font-medium text-slate-600">
@@ -200,10 +275,7 @@ export function AuthSignupForm() {
         {steps.map((step, index) => (
           <div key={step} className="flex-1">
             <div
-              className={cn(
-                "h-2 rounded-full",
-                index <= currentStep ? "bg-sapphire" : "bg-skywash/40",
-              )}
+              className={cn("h-2 rounded-full", index <= currentStep ? "bg-sapphire" : "bg-skywash/40")}
             />
             <p className="mt-2 text-xs text-slate-500">{step}</p>
           </div>
@@ -230,9 +302,7 @@ export function AuthSignupForm() {
                     <h3 className="text-base font-semibold text-ink">{choice.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{choice.text}</p>
                   </div>
-                  {actorType === choice.value ? (
-                    <CheckCircle2 className="h-5 w-5 text-sapphire" />
-                  ) : null}
+                  {actorType === choice.value ? <CheckCircle2 className="h-5 w-5 text-sapphire" /> : null}
                 </div>
               </button>
             ))}
@@ -258,9 +328,7 @@ export function AuthSignupForm() {
                     <h3 className="text-base font-semibold text-ink">{choice.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{choice.text}</p>
                   </div>
-                  {signupMethod === choice.value ? (
-                    <CheckCircle2 className="h-5 w-5 text-sapphire" />
-                  ) : null}
+                  {signupMethod === choice.value ? <CheckCircle2 className="h-5 w-5 text-sapphire" /> : null}
                 </div>
               </button>
             ))}
@@ -289,15 +357,33 @@ export function AuthSignupForm() {
               <FieldError message={form.formState.errors.email?.message} />
             </label>
 
-            <label className="text-sm font-medium text-slate-700">
-              Phone
-              <input
-                className="mt-2 w-full rounded-2xl border border-sapphire/10 bg-white/70 px-4 py-3 outline-none"
-                placeholder="+91 90000 00000"
-                {...form.register("phone")}
-              />
-              <FieldError message={form.formState.errors.phone?.message} />
-            </label>
+            {signupMethod === "email_password" ? (
+              <label className="text-sm font-medium text-slate-700">
+                Password
+                <div className="relative mt-2">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="w-full rounded-2xl border border-sapphire/10 bg-white/70 px-4 py-3 pr-10 outline-none"
+                    placeholder="At least 8 characters"
+                    {...form.register("password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    onClick={() => setShowPassword((value) => !value)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <FieldError message={form.formState.errors.password?.message} />
+              </label>
+            ) : (
+              <div className="rounded-[24px] bg-skywash/30 p-4 text-sm leading-6 text-slate-600">
+                {signupMethod === "google"
+                  ? "Google sign-up will continue in a secure popup/redirect flow."
+                  : "Magic link sign-up sends a secure email sign-in link."}
+              </div>
+            )}
 
             {!isPatient ? (
               <label className="text-sm font-medium text-slate-700 sm:col-span-2">
@@ -310,8 +396,8 @@ export function AuthSignupForm() {
               </label>
             ) : (
               <div className="sm:col-span-2 rounded-[24px] bg-cloud p-4 text-sm leading-6 text-slate-600">
-                Patients do not need an organization to start. They can join care
-                journeys directly and connect to providers later.
+                Patients do not belong to a tenant by default. They will complete profile setup
+                first, then go to facility discovery and booking.
               </div>
             )}
           </div>
@@ -320,10 +406,7 @@ export function AuthSignupForm() {
         {currentStep === 3 ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {reviewItems.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-[24px] border border-sapphire/10 bg-cloud px-4 py-4"
-              >
+              <div key={item.label} className="rounded-[24px] border border-sapphire/10 bg-cloud px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-azure">{item.label}</p>
                 <p className="mt-2 text-sm font-medium text-slate-700">{item.value}</p>
               </div>
@@ -355,9 +438,7 @@ export function AuthSignupForm() {
             </>
           ) : (
             <UIButton type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? (
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
+              {form.formState.isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
               Start signup
             </UIButton>
           )}

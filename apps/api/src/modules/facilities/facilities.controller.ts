@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
 import { CreateFacilityDto } from "./dto/create-facility.dto";
 import { FacilitiesService } from "./facilities.service";
@@ -12,9 +12,18 @@ export class FacilitiesController {
     return this.facilitiesService.getFacilityTypes();
   }
 
+  @Get("public")
+  getPublicFacilities() {
+    return this.facilitiesService.getPublicFacilities();
+  }
+
+  @Get("public/:id")
+  getPublicFacilityById(@Param("id") id: string) {
+    return this.facilitiesService.getPublicFacilityById(id);
+  }
+
   @Post()
   createFacility(@Body() dto: CreateFacilityDto) {
     return this.facilitiesService.createFacility(dto);
   }
 }
-

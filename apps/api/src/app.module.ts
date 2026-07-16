@@ -3,6 +3,9 @@ import { ConfigModule } from "@nestjs/config";
 
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { AppointmentSlotsModule } from "./modules/appointment-slots/appointment-slots.module";
+import { AppointmentRequestsModule } from "./modules/appointment-requests/appointment-requests.module";
+import { AppointmentsModule } from "./modules/appointments/appointments.module";
 import { AppConfigModule } from "./config/app-config.module";
 import { AuditLogsModule } from "./modules/audit-logs/audit-logs.module";
 import { AuthModule } from "./modules/auth/auth.module";
@@ -16,6 +19,9 @@ import { UsersModule } from "./modules/users/users.module";
       isGlobal: true,
     }),
     AppConfigModule,
+    AppointmentSlotsModule,
+    AppointmentRequestsModule,
+    AppointmentsModule,
     AuthModule,
     TenantsModule,
     FacilitiesModule,
@@ -26,4 +32,3 @@ import { UsersModule } from "./modules/users/users.module";
   providers: [AppService],
 })
 export class AppModule {}
-

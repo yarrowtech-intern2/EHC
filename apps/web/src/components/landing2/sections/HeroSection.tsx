@@ -2,106 +2,74 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { VideoPlayer } from "../common/VideoPlayer";
-import { cdn } from "@/data/landing2-assets";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex flex-col pt-20 pb-8">
-      <div className="mx-auto max-w-[1200px] px-5 sm:px-8 text-center mt-auto">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-[13px] font-medium uppercase tracking-[0.14em] text-brand mb-5"
-        >
-          Connected Healthcare Platform
-        </motion.p>
+    <section className="relative flex min-h-screen items-start overflow-hidden bg-[#eeedfa] pt-[142px] sm:pt-[156px] xl:pt-[230px]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, x: 34 }}
+        animate={{ opacity: 1, scale: 1, x: 0 }}
+        transition={{ duration: 0.7, delay: 0.25 }}
+        className="absolute bottom-[-88px] right-[-92px] z-0 w-[290px] cursor-pointer transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-[1.025] hover:brightness-110 sm:bottom-[-112px] sm:right-[-120px] sm:w-[370px] md:bottom-auto md:right-[-132px] md:top-[39vh] md:w-[540px] xl:right-[-160px] xl:top-[30vh] xl:w-[820px]"
+        aria-hidden="true"
+      >
+        <img
+          src="/assets/greenPlus.png"
+          alt=""
+          className="h-auto w-full select-none"
+          draggable={false}
+        />
+      </motion.div>
 
+      <div className="relative z-10 w-full px-5 text-center md:px-[8.4vw] md:text-left">
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-hero text-primary-text mx-auto max-w-4xl"
+          className="mx-auto max-w-[430px] text-[38px] font-normal leading-[0.94] text-[#050608] sm:text-[42px] md:mx-0 xl:max-w-[650px] xl:text-[64px]"
         >
-          Healthcare, connected around you.
+          <span className="relative inline-block leading-none">
+            <span className="relative z-10">Healthcare,</span>
+            <span
+              className="absolute -left-2 -right-2 -top-1 bottom-[-1px] origin-left rotate-[-2.5deg] bg-[#aaa6ff] xl:-left-3 xl:-right-4 xl:-top-2 xl:bottom-0"
+              aria-hidden="true"
+            />
+          </span>{" "}
+          connected
+          <br />
+          arounnd you
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.35 }}
-          className="mt-5 text-lg text-secondary-text max-w-xl mx-auto leading-relaxed"
+          className="mx-auto mt-7 max-w-[420px] text-[15px] font-normal leading-[1.28] text-[#171923] md:mx-0 xl:mt-10 xl:max-w-[610px] xl:text-[20px]"
         >
           Patients, doctors, ambulances, pharmacies, diagnostics and health
-          records — one integrated platform.
+          record - one integrated platform
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.5 }}
-          className="mt-8 flex flex-wrap justify-center gap-3"
+          className="mt-9 flex flex-wrap items-center justify-center gap-3 md:justify-start xl:mt-12 xl:gap-5"
         >
           <Link
             href="/register"
-            className="px-7 py-3 text-[14px] font-semibold text-white bg-brand rounded-full hover:bg-brand-dark transition-colors"
+            className="rounded-full bg-[#ff9500] px-3 py-1.5 text-[12px] font-semibold text-[#050608] shadow-[inset_10px_9px_20.6px_0_#fff9f4,-4px_-4px_5px_0_rgba(255,255,255,0.25),5px_5px_7px_0_rgba(0,0,0,0.42)] transition-all hover:translate-y-[-1px] hover:brightness-105 active:translate-y-0 xl:px-5 xl:py-2.5 xl:text-[15px]"
           >
             Get Started
           </Link>
           <a
             href="#services"
-            className="px-7 py-3 text-[14px] font-semibold text-primary-text border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
+            className="rounded-full bg-white px-3 py-1.5 text-[12px] font-medium text-[#050608] shadow-[inset_10px_9px_20.6px_0_#d2d2d2,-4px_-4px_5px_0_rgba(255,255,255,0.25),5px_5px_7px_0_rgba(0,0,0,0.42)] transition-all hover:translate-y-[-1px] hover:brightness-105 active:translate-y-0 xl:px-5 xl:py-2.5 xl:text-[15px]"
           >
-            Explore Platform
+            Explore Services
           </a>
         </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-3 text-[13px] text-secondary-text"
-        >
-          Already have an account?{" "}
-          <Link href="/login" className="text-brand hover:text-brand-dark font-medium">
-            Sign in
-          </Link>
-        </motion.p>
       </div>
-
-      {/* Hero video */}
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.5 }}
-        className="mx-auto max-w-[1200px] w-full px-5 sm:px-8 mt-12 mb-auto"
-      >
-        <VideoPlayer
-          src={cdn.videos.heroReel}
-          poster={cdn.posters.heroReel}
-          className="rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)]"
-        />
-      </motion.div>
-
-      {/* Scroll hint */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="mt-6 flex flex-col items-center gap-1.5"
-      >
-        <span className="text-[11px] text-secondary-text/50 tracking-wider uppercase">
-          Scroll
-        </span>
-        <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-4 h-4 text-secondary-text/30" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 }

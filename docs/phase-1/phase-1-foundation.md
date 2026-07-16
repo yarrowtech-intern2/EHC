@@ -36,12 +36,15 @@ This keeps the data model consistent for both enterprise groups and small operat
 - Email and password
 - Google social login
 - Magic link
-- Phone OTP
+- Phone OTP later, not in the current Phase 1 implementation
 
 Signup UX rule:
 - Use step-by-step onboarding with `Next` and `Skip` controls.
 - Patients are the main customer path and do not require an organization invite.
 - Google login applies to patients as well as staff roles.
+- Patient post-signup flow is: `profile completion -> facility discovery / booking`
+- Tenant admins can create tenants immediately after self-signup in the current Phase 1 flow.
+- Patients are independent customer accounts and are not attached to a tenant by default.
 
 ## Base roles
 
@@ -77,6 +80,9 @@ Signup UX rule:
 - Stepper-based onboarding UI concept
 - Working patient-first signup screen wired to the API
 - Working tenant and primary facility setup form wired to the API
+- Real Supabase client auth for email/password, Google, and magic link
+- Client-side auth session provider and admin route guard
+- Patient profile completion screen and facility discovery screen
 - NestJS module boundaries for Phase 1
 - Supabase migrations for tenants, facilities, profiles, roles, audit logs, and onboarding sessions
 
