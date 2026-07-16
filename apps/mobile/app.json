@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "EHC Mobile",
+    "slug": "ehc-mobile",
+    "scheme": "ehc",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#194898"
+    }
+  }
+}
+

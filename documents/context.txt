@@ -1,0 +1,42 @@
+The next Phase 1 slice is in place. Patients are now treated as the default onboarding path, small_vendor is modeled as a real tenant category, and the web app has working forms that submit to the NestJS API.
+
+Main changes:
+
+Added a patient-first multi-step signup flow with Next and Skip at apps/web/src/app/signup/page.tsx and apps/web/src/components/auth-signup-form.tsx.
+Converted tenant setup into a working submit flow at apps/web/src/app/admin/tenant-setup/page.tsx using apps/web/src/components/tenant-setup-form.tsx.
+Added API request handling in apps/web/src/lib/api.ts.
+Upgraded the NestJS backend so onboarding sessions, tenants, and facilities are insert-ready through Supabase in:
+apps/api/src/modules/auth/auth.service.ts
+apps/api/src/modules/tenants/tenants.service.ts
+apps/api/src/modules/facilities/facilities.service.ts
+Added the onboarding session table in supabase/migrations/20260716_phase1_onboarding_sessions.sql.
+Updated the Phase 1 decisions in docs/phase-1/phase-1-foundation.md.
+Verification:
+
+npm run build:api passed.
+npm run build:web passed.
+What is still not implemented:
+
+real Supabase Auth sign-in/sign-up flows
+Google OAuth wiring
+magic link and phone OTP execution
+protected admin session handling
+saving onboarding progress back into authenticated user profiles
+Next correct step for Phase 1 is to implement real authentication and session management. Before I do that, I need 4 more concrete decisions from you:
+
+For patients, after signup should they land on:
+
+a patient dashboard
+a profile completion screen
+a facility discovery / booking screen
+Should tenant admins be allowed to create tenants immediately after self-signup, or must super_admin approve them first?
+
+For phone OTP, do you want to use:
+
+Supabase Auth phone OTP directly
+a custom provider later, but scaffold Supabase now
+For patient accounts, do you want one patient to be able to belong to:
+
+multiple tenants/facilities over time
+only one primary tenant until manually switched
+Once you answer these, I’ll implement the real auth layer instead of placeholders.

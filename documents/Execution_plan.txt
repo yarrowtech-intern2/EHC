@@ -1,0 +1,488 @@
+EHC SAAS HEALTHCARE SYSTEM
+Execution Plan and Delivery Roadmap
+
+color pallete
+bg color: #eeedfa
+secondary color:  #7779fc
+cta and others: #dbb28f
+
+
+1. Project Goal
+
+Build a multi-tenant healthcare SaaS platform that connects:
+- Patients
+- Doctors
+- Ambulance operators
+- Blood banks
+- Pharmacies
+- Super admins / platform operators
+
+The system should support multiple healthcare workflows inside one platform while keeping strong security, auditability, and tenant isolation.
+
+
+2. Product Vision
+
+This project will not be built as one large release.
+It will be divided into business modules and delivered phase by phase.
+
+Reason:
+- Reduces complexity
+- Preserves development focus
+- Makes testing easier
+- Allows early release of usable features
+- Prevents loss of context as the project grows
+
+
+3. Recommended Tech Stack
+
+Frontend Web
+- Next.js 16
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+
+Mobile App
+- Expo React Native
+- TypeScript
+
+Backend API / Business Layer
+- NestJS
+- TypeScript
+
+Backend Platform
+- Supabase
+  - PostgreSQL for relational data
+  - Auth for authentication
+  - Storage for reports, prescriptions, and documents
+  - Realtime for live updates, notifications, and tracking
+  - Edge Functions for lightweight backend tasks and integrations
+
+Infrastructure / Supporting Tools
+- Redis + BullMQ for background jobs when needed
+- Mapbox or Google Maps for ambulance and logistics tracking
+- Razorpay or Stripe for billing and payments
+- Twilio / WhatsApp / Email provider for communication
+- Agora or 100ms for video consultation
+- Sentry + monitoring stack for logging and error tracking
+
+
+4. Architecture Approach
+
+Recommended architecture for v1:
+- Monorepo
+- Modular monolith backend
+- Shared PostgreSQL database
+- Clear domain modules
+- Event-driven background jobs only where necessary
+
+Reason:
+- Faster development
+- Easier deployment
+- Lower infrastructure overhead
+- Better for an early-stage healthcare platform
+
+Do not start with microservices.
+Keep service boundaries clean so modules can be extracted later if scale requires it.
+
+
+5. Core Engineering Principles
+
+- Multi-tenant from day one
+- Role-based access control from day one
+- Audit logs for important actions
+- Row Level Security for protected healthcare data
+- Soft delete where records should remain recoverable
+- Encryption for sensitive data
+- Clear domain ownership for each module
+- API-first design
+- Reusable UI components
+- Background jobs for notifications, reports, billing events, and tracking updates
+
+
+6. Delivery Strategy
+
+The full system should be divided into 9 major parts and built one by one.
+
+Build Order:
+1. Platform Core
+2. Patient + Doctor MVP
+3. Pharmacy Module
+4. Billing & Payments
+5. Ambulance / Emergency Module
+6. Blood Bank Module
+7. Communication & Support
+8. Analytics & Reporting
+9. Advanced Integrations
+
+
+7. Phase-by-Phase Breakdown
+
+PHASE 1: Platform Core
+
+Objective:
+Build the common foundation required by every module.
+
+Includes:
+- Tenant management
+- Subscription / plan model
+- User registration and login
+- Role-based access control
+- User profile management
+- Audit logs
+- File storage
+- Base notification framework
+- Shared admin settings
+- Shared UI design system
+
+Main roles supported:
+- Super Admin
+- Tenant Admin
+- Doctor
+- Patient
+- Pharmacy Admin
+- Ambulance Admin
+- Blood Bank Admin
+
+Output of Phase 1:
+- Secure login system
+- Tenant-aware data model
+- Shared backend and frontend foundations
+- Platform ready for first business workflows
+
+
+PHASE 2: Patient + Doctor MVP
+
+Objective:
+Release the first usable healthcare workflow.
+
+Includes:
+- Patient app / portal
+- Doctor portal
+- Appointment booking
+- Doctor schedule management
+- Consultation workflow
+- Patient profile
+- Basic EHR / medical record summary
+- Prescription creation
+- Appointment history
+- Visit notes
+
+Key outcome:
+- A patient can book an appointment
+- A doctor can consult the patient
+- Basic patient records can be stored and viewed
+
+Why this phase comes first:
+- It creates the first real value
+- It validates the core healthcare workflow
+- It gives a strong base for pharmacy, billing, and telemedicine later
+
+
+PHASE 3: Pharmacy Module
+
+Objective:
+Extend the doctor workflow into medicine ordering and fulfillment.
+
+Includes:
+- Medicine catalog
+- Prescription-linked medicine ordering
+- Pharmacy admin dashboard
+- Order management
+- Inventory visibility
+- Order status tracking
+- Logistics status updates
+- Complaint handling for pharmacy orders
+
+Key outcome:
+- Doctor prescriptions can lead to pharmacy orders
+- Pharmacy teams can manage fulfillment
+
+
+PHASE 4: Billing & Payments
+
+Objective:
+Monetize platform activity and record financial transactions.
+
+Includes:
+- Service pricing
+- Appointment billing
+- Pharmacy billing
+- Invoices
+- Payment links / online payment
+- Refund handling
+- Billing history
+- Subscription billing for tenants if needed
+
+Key outcome:
+- Consultations and orders can be paid and tracked
+- Financial records become auditable
+
+
+PHASE 5: Ambulance / Emergency Module
+
+Objective:
+Support emergency transport and dispatch workflows.
+
+Includes:
+- Emergency service request
+- Ambulance booking
+- Manual dispatch
+- Driver / vehicle assignment
+- GPS / route tracking
+- Trip history
+- Status updates
+- Complaint management
+
+Key outcome:
+- A patient can request ambulance support
+- Admins can dispatch and track the trip
+
+
+PHASE 6: Blood Bank Module
+
+Objective:
+Add donor and blood inventory workflows.
+
+Includes:
+- Donor registration
+- Donor profile management
+- Blood inventory
+- Blood request creation
+- Blood request approval / tracking
+- Blood bank dashboard
+- ERP / CRM support if needed later
+
+Key outcome:
+- Blood banks can manage donors and inventory through the platform
+
+
+PHASE 7: Communication & Support
+
+Objective:
+Centralize user communication and support workflows.
+
+Includes:
+- In-app notifications
+- SMS notifications
+- Email notifications
+- WhatsApp notifications
+- Chat between users and support teams
+- Feedback collection
+- Complaint / support tickets
+- Escalation flow
+
+Key outcome:
+- All major modules can notify users consistently
+- Support becomes manageable across the platform
+
+
+PHASE 8: Analytics & Reporting
+
+Objective:
+Provide operational and management visibility.
+
+Includes:
+- Admin dashboards
+- Appointment reports
+- Billing reports
+- Pharmacy reports
+- Ambulance activity reports
+- Blood bank reports
+- User activity reports
+- Audit and operational analytics
+
+Key outcome:
+- Tenants and platform admins can make decisions using structured data
+
+
+PHASE 9: Advanced Integrations
+
+Objective:
+Add advanced external services only after core workflows are stable.
+
+Includes:
+- Lab / diagnostic system integration
+- Telemedicine / video consultation APIs
+- ERP / CRM connectors
+- AI / ML health insight features
+- Data warehouse integration
+- Search / log indexing improvements
+
+Key outcome:
+- Platform becomes enterprise-ready
+- External ecosystems can be integrated safely
+
+
+8. Functional Module List
+
+The backend should be organized into clear domain modules:
+- auth
+- tenants
+- users
+- roles_permissions
+- audit_logs
+- files
+- notifications
+- patients
+- doctors
+- appointments
+- consultations
+- ehr
+- prescriptions
+- pharmacy
+- orders
+- billing
+- payments
+- ambulance
+- dispatch
+- gps_tracking
+- blood_bank
+- support
+- chat
+- analytics
+- reports
+- integrations
+
+
+9. Suggested Monorepo Structure
+
+/apps
+- web
+- mobile
+- api
+
+/packages
+- ui
+- config
+- types
+- utils
+
+/supabase
+- migrations
+- seed
+- functions
+
+/docs
+- architecture
+- api
+- product
+
+
+10. Database Direction
+
+Primary database:
+- Supabase PostgreSQL
+
+Suggested logical data areas:
+- users and authentication
+- tenant and subscription data
+- patient and medical records
+- appointments and consultation records
+- pharmacy catalog, orders, logistics
+- ambulance requests and trips
+- blood inventory and donor data
+- billing and payments
+- notifications and communication logs
+- audit trails and admin activity
+
+Important database rules:
+- All tables must include tenant awareness where applicable
+- Sensitive healthcare records must have strict access policies
+- Audit logs should be immutable where possible
+- Soft delete should be used for recoverable operational records
+
+
+11. Non-Functional Requirements
+
+- High security
+- Strong tenant isolation
+- Role-based access control
+- Auditability
+- Performance for transactional workflows
+- Mobile readiness
+- Scalable notification handling
+- Backup and disaster recovery planning
+- Monitoring and alerting
+
+
+12. MVP Definition
+
+The first real MVP should include:
+- Platform Core
+- Patient + Doctor MVP
+- Pharmacy basics
+- Billing basics
+
+This is enough to release a usable healthcare product with:
+- patient registration
+- doctor consultation
+- appointment booking
+- prescription flow
+- medicine ordering
+- payment flow
+
+
+13. What Not To Build First
+
+Do not start with:
+- microservices
+- AI / ML modules
+- full ERP integrations
+- advanced warehouse analytics
+- highly customized reporting engine
+- over-engineered event systems
+
+These should come after the core workflows are proven.
+
+
+14. Recommended Immediate Next Steps
+
+Step 1
+Define the exact MVP scope for Phase 1 and Phase 2.
+
+Step 2
+Create the monorepo structure:
+- web
+- mobile
+- api
+- shared packages
+- supabase folder
+
+Step 3
+Design the base database schema:
+- tenants
+- users
+- roles
+- permissions
+- profiles
+- audit_logs
+
+Step 4
+Implement authentication and role access.
+
+Step 5
+Start the appointment and doctor consultation modules.
+
+
+15. Project Rule for Future Work
+
+Whenever new work starts, always classify it into one of these:
+- Platform Core
+- Patient + Doctor
+- Pharmacy
+- Billing
+- Ambulance
+- Blood Bank
+- Communication
+- Analytics
+- Integrations
+
+This rule will help preserve context and avoid uncontrolled feature growth.
+
+
+16. Final Recommendation
+
+Build this platform in phases, not all at once.
+Start with the common platform core, then deliver the patient-doctor workflow, then extend into pharmacy and billing, and only after that move into ambulance, blood bank, communication, analytics, and integrations.
+
+This is the safest and most maintainable way to complete the full healthcare system without losing control of scope.

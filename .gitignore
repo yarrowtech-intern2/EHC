@@ -1,0 +1,15 @@
+node_modules
+.next
+dist
+build
+.expo
+.turbo
+coverage
+.env
+.env.example
+.env.*
+!.env.example
+supabase/.temp
+apps/mobile/.expo
+apps/mobile/.expo-shared
+
