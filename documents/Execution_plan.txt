@@ -2,8 +2,8 @@ EHC SAAS HEALTHCARE SYSTEM
 Execution Plan and Delivery Roadmap
 
 color pallete
-bg color: #eeedfa
-secondary color:  #7779fc
+bg color: #EFEFEB
+title and highlight color: #759dc4
 cta and others: #dbb28f
 
 

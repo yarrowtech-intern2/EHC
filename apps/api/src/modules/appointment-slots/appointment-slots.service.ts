@@ -1,11 +1,15 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 
 import { SupabaseService } from "../../config/supabase.service";
+import { AuditLogsService } from "../audit-logs/audit-logs.service";
 import { CreateAppointmentSlotDto } from "./dto/create-appointment-slot.dto";
 
 @Injectable()
 export class AppointmentSlotsService {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   async getPublicSlots(facilityId: string, date?: string) {
     let query = this.supabaseService.adminClient
@@ -31,7 +35,17 @@ export class AppointmentSlotsService {
     return data;
   }
 
-  async createSlot(dto: CreateAppointmentSlotDto) {
+  async createSlot(dto: CreateAppointmentSlotDto, authorization?: string) {
+    const { data: facility, error: facilityError } = await this.supabaseService.adminClient
+      .from("facilities")
+      .select("id, tenant_id, name")
+      .eq("id", dto.facilityId)
+      .single();
+
+    if (facilityError) {
+      throw new InternalServerErrorException(facilityError.message);
+    }
+
     const { data, error } = await this.supabaseService.adminClient
       .from("appointment_slots")
       .insert({
@@ -51,6 +65,24 @@ export class AppointmentSlotsService {
     if (error) {
       throw new InternalServerErrorException(error.message);
     }
+
+    await this.auditLogsService.recordEvent({
+      authorization,
+      tenantId: facility.tenant_id,
+      facilityId: facility.id,
+      eventType: "appointment_slot.created",
+      entityType: "appointment_slot",
+      entityId: data.id,
+      metadata: {
+        facilityName: facility.name,
+        slotDate: data.slot_date,
+        startTime: data.start_time,
+        endTime: data.end_time,
+        serviceType: data.service_type,
+        capacity: data.capacity,
+        doctorUserId: data.doctor_user_id,
+      },
+    });
 
     return data;
   }

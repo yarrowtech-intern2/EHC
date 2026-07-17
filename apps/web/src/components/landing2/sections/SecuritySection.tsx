@@ -2,6 +2,7 @@
 
 import { ShieldCheck, Lock, FileCheck, ScrollText } from "lucide-react";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 
 const principles = [
   { icon: ShieldCheck, title: "Role-Based Access", desc: "Each user type sees only what they are authorised to access." },
@@ -22,9 +23,17 @@ export function SecuritySection() {
     <section id="security" className="py-20 sm:py-28 px-5 sm:px-8">
       <div className="mx-auto max-w-[1200px]">
         <FadeIn className="text-center mb-14 max-w-2xl mx-auto">
-          <h2 className="text-section text-primary-text">
-            Information protected by design.
-          </h2>
+          <EditorialTitle
+            as="h2"
+            size="section"
+            className="mx-auto max-w-[860px]"
+            lines={[
+              "Information",
+              <>
+                <EditorialHighlight>protected</EditorialHighlight> by design.
+              </>,
+            ]}
+          />
         </FadeIn>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-14">

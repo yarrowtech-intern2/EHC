@@ -10,11 +10,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantMap: Record<ButtonVariant, string> = {
   primary:
-    "bg-ambercare text-ink shadow-card hover:bg-[#c99e79] focus-visible:ring-ambercare",
+    "cta-button cta-button-primary focus-visible:ring-ambercare",
   secondary:
-    "bg-white/75 text-sapphire ring-1 ring-sapphire/20 hover:bg-skywash/60 focus-visible:ring-sapphire",
+    "cta-button cta-button-secondary focus-visible:ring-sapphire",
   ghost:
-    "bg-transparent text-sapphire hover:bg-skywash/25 focus-visible:ring-sapphire",
+    "cta-button cta-button-ghost focus-visible:ring-sapphire",
 };
 
 export const UIButton = forwardRef<HTMLButtonElement, ButtonProps>(

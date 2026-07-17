@@ -2,6 +2,7 @@
 
 import { Brain, FileSearch, ImageIcon, TrendingUp } from "lucide-react";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 import { VideoPlayer } from "../common/VideoPlayer";
 import { cdn } from "@/data/landing2-assets";
 
@@ -30,9 +31,18 @@ export function AIInsightsShowcase() {
             <p className="mb-4 text-[13px] font-medium uppercase tracking-[0.14em] text-brand">
               AI-Assisted
             </p>
-            <h2 className="text-section leading-tight text-primary-text">
-              Insights that support better decisions.
-            </h2>
+            <EditorialTitle
+              as="h2"
+              align="left"
+              size="section"
+              className="max-w-[760px]"
+              lines={[
+                "Insights that support",
+                <>
+                  <EditorialHighlight>better</EditorialHighlight> decisions.
+                </>,
+              ]}
+            />
 
             <p className="mt-4 text-base leading-relaxed text-secondary-text">
               Organise information, identify patterns and understand patient

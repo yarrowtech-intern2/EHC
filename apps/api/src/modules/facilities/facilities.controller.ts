@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Param, Post } from "@nestjs/common";
 
 import { CreateFacilityDto } from "./dto/create-facility.dto";
 import { FacilitiesService } from "./facilities.service";
@@ -23,7 +23,10 @@ export class FacilitiesController {
   }
 
   @Post()
-  createFacility(@Body() dto: CreateFacilityDto) {
-    return this.facilitiesService.createFacility(dto);
+  createFacility(
+    @Body() dto: CreateFacilityDto,
+    @Headers("authorization") authorization: string | undefined,
+  ) {
+    return this.facilitiesService.createFacility(dto, authorization);
   }
 }

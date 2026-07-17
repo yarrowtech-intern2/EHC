@@ -41,6 +41,9 @@ export default function AdminPage() {
               <Link href="/admin/appointments">
                 <UIButton variant="secondary">Appointments</UIButton>
               </Link>
+              <Link href="/admin/audit-logs">
+                <UIButton variant="secondary">Audit logs</UIButton>
+              </Link>
               <Link href="/admin/team">
                 <UIButton variant="secondary">Team</UIButton>
               </Link>
@@ -110,6 +113,9 @@ export default function AdminPage() {
               <div className="rounded-2xl border border-sapphire/10 px-4 py-3">
                 `user.role_assigned` by `tenant_admin`
               </div>
+              <Link href="/admin/audit-logs" className="inline-flex text-sm font-semibold text-sapphire">
+                Open audit log visibility
+              </Link>
             </div>
           </DashboardCard>
           <DashboardCard

@@ -15,9 +15,9 @@ interface ButtonProps {
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-brand text-white hover:bg-brand-dark shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
+    "bg-[#F2C990] text-[#050608] shadow-[inset_10px_9px_20.6px_0_#E3B97F,-4px_-4px_5px_0_rgba(255,255,255,0.38),5px_5px_7px_0_rgba(0,0,0,0.42)] transition-all duration-200 hover:translate-y-[-1px] hover:brightness-105 active:translate-y-0",
   secondary:
-    "bg-white text-primary-text border border-gray-200 hover:bg-gray-50 shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
+    "bg-[#F2C990] text-[#050608] shadow-[inset_10px_9px_20.6px_0_#E3B97F,-4px_-4px_5px_0_rgba(255,255,255,0.38),5px_5px_7px_0_rgba(0,0,0,0.42)] transition-all duration-200 hover:translate-y-[-1px] hover:brightness-105 active:translate-y-0",
   ghost: "text-secondary-text hover:text-primary-text",
   emergency:
     "bg-emergency text-white hover:bg-red-600 shadow-[0_1px_2px_rgba(0,0,0,0.05)]",

@@ -1,6 +1,7 @@
 "use client";
 
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 import { serviceLabels } from "@/data/landing2-services";
 
 export function ServicesOverview() {
@@ -8,9 +9,17 @@ export function ServicesOverview() {
     <section className="py-28 sm:py-36 px-5 sm:px-8">
       <div className="mx-auto max-w-[1200px] text-center">
         <FadeIn>
-          <h2 className="text-section text-primary-text max-w-2xl mx-auto">
-            One platform. Every essential connection.
-          </h2>
+          <EditorialTitle
+            as="h2"
+            size="hero"
+            className="mx-auto max-w-[1120px]"
+            lines={[
+              "One platform.",
+              <>
+                Every <EditorialHighlight>essential</EditorialHighlight> connection.
+              </>,
+            ]}
+          />
         </FadeIn>
 
         <FadeIn delay={0.15}>

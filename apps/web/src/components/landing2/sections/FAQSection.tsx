@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 import { faqData } from "@/data/landing2-faq";
 
 export function FAQSection() {
@@ -13,7 +14,11 @@ export function FAQSection() {
     <section id="faq" className="py-20 sm:py-28 px-5 sm:px-8">
       <div className="mx-auto max-w-2xl">
         <FadeIn className="text-center mb-12">
-          <h2 className="text-section text-primary-text">FAQ</h2>
+          <EditorialTitle
+            as="h2"
+            size="section"
+            lines={[<EditorialHighlight key="faq">FAQ</EditorialHighlight>]}
+          />
         </FadeIn>
 
         <div className="divide-y divide-gray-100">

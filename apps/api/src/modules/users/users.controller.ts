@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Post, Query } from "@nestjs/common";
 
 import { AssignUserRoleDto } from "./dto/assign-user-role.dto";
 import { UsersService } from "./users.service";
@@ -26,7 +26,10 @@ export class UsersController {
   }
 
   @Post("assign-role")
-  assignRole(@Body() dto: AssignUserRoleDto) {
-    return this.usersService.assignRole(dto);
+  assignRole(
+    @Body() dto: AssignUserRoleDto,
+    @Headers("authorization") authorization: string | undefined,
+  ) {
+    return this.usersService.assignRole(dto, authorization);
   }
 }

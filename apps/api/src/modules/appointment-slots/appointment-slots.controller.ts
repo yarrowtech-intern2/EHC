@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Post, Query } from "@nestjs/common";
 
 import { AppointmentSlotsService } from "./appointment-slots.service";
 import { CreateAppointmentSlotDto } from "./dto/create-appointment-slot.dto";
@@ -16,8 +16,10 @@ export class AppointmentSlotsController {
   }
 
   @Post()
-  createSlot(@Body() dto: CreateAppointmentSlotDto) {
-    return this.appointmentSlotsService.createSlot(dto);
+  createSlot(
+    @Body() dto: CreateAppointmentSlotDto,
+    @Headers("authorization") authorization: string | undefined,
+  ) {
+    return this.appointmentSlotsService.createSlot(dto, authorization);
   }
 }
-

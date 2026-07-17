@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 import { roles } from "@/data/landing2-roles";
 import { cdn } from "@/data/landing2-assets";
 
@@ -26,9 +27,16 @@ export function RoleExperience() {
           <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-brand mb-4">
             Platform
           </p>
-          <h2 className="text-section text-primary-text">
-            A workspace for every role.
-          </h2>
+          <EditorialTitle
+            as="h2"
+            size="section"
+            lines={[
+              <>
+                A <EditorialHighlight>workspace</EditorialHighlight>
+              </>,
+              "for every role.",
+            ]}
+          />
         </FadeIn>
 
         <div className="flex flex-wrap justify-center gap-1.5 mb-12">
@@ -63,9 +71,13 @@ export function RoleExperience() {
           >
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <div>
-                <h3 className="text-subsection text-primary-text">
-                  {active.heading}
-                </h3>
+                <EditorialTitle
+                  as="h3"
+                  align="left"
+                  size="subsection"
+                  className="max-w-[620px]"
+                  lines={[active.heading]}
+                />
                 <p className="mt-3 text-[15px] text-secondary-text leading-relaxed">
                   {active.description}
                 </p>

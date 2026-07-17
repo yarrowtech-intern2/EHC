@@ -67,10 +67,10 @@ Signup UX rule:
 
 ## Brand palette
 
-- `#194898` Sapphire
-- `#5084D9`
-- `#9BC0E8`
-- `#EDEDEE`
+- `#759DC4` Title and highlight blue
+- `#5F86AE` Supporting darker blue
+- `#93B4D3` Light accent blue
+- `#EFEFEB` Background neutral
 - `#D9B100`
 
 ## What is implemented in this scaffold

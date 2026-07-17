@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { Ambulance, MapPin, Navigation, Clock, User, Radio, Hospital } from "lucide-react";
+import { Button } from "../common/Button";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 import { VideoPlayer } from "../common/VideoPlayer";
 import { cdn } from "@/data/landing2-assets";
 
@@ -25,9 +26,18 @@ export function EmergencyExperience() {
               Emergency Response
             </p>
 
-            <h2 className="text-section leading-tight text-primary-text">
-              Request help. Track the response.
-            </h2>
+            <EditorialTitle
+              as="h2"
+              align="left"
+              size="section"
+              className="max-w-[700px]"
+              lines={[
+                "Request help.",
+                <>
+                  Track the <EditorialHighlight>response.</EditorialHighlight>
+                </>,
+              ]}
+            />
 
             <p className="mt-4 max-w-md text-base leading-relaxed text-secondary-text">
               Request an ambulance, share your location and receive real-time
@@ -49,19 +59,21 @@ export function EmergencyExperience() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
+              <Button
                 href="/emergency-ambulance"
-                className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-brand-dark"
+                variant="primary"
+                size="md"
               >
                 <Ambulance className="w-4 h-4" />
                 Request Ambulance
-              </Link>
-              <Link
+              </Button>
+              <Button
                 href="/login"
-                className="inline-flex items-center rounded-full border border-brand/20 px-6 py-3 text-[14px] font-medium text-primary-text transition-colors hover:bg-white/60"
+                variant="secondary"
+                size="md"
               >
                 Track Existing Request
-              </Link>
+              </Button>
             </div>
           </FadeIn>
 

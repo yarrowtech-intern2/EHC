@@ -6,11 +6,15 @@ import {
 } from "@nestjs/common";
 
 import { SupabaseService } from "../../config/supabase.service";
+import { AuditLogsService } from "../audit-logs/audit-logs.service";
 import { AssignUserRoleDto } from "./dto/assign-user-role.dto";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   getBaseRoles() {
     return [
@@ -89,7 +93,7 @@ export class UsersService {
     }));
   }
 
-  async assignRole(dto: AssignUserRoleDto) {
+  async assignRole(dto: AssignUserRoleDto, authorization?: string) {
     const normalizedEmail = dto.email.trim().toLowerCase();
 
     if (!normalizedEmail) {
@@ -136,6 +140,20 @@ export class UsersService {
     if (profileUpdateError) {
       throw new InternalServerErrorException(profileUpdateError.message);
     }
+
+    await this.auditLogsService.recordEvent({
+      authorization,
+      tenantId: dto.tenantId,
+      facilityId: dto.facilityId ?? null,
+      eventType: "user.role_assigned",
+      entityType: "user_role",
+      entityId: roleRecord.id,
+      metadata: {
+        assignedUserId: profile.id,
+        assignedEmail: normalizedEmail,
+        role: dto.role,
+      },
+    });
 
     return {
       message: "Role assigned successfully.",

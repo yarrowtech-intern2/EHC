@@ -7,13 +7,17 @@ import {
 import type { User } from "@supabase/supabase-js";
 
 import { SupabaseService } from "../../config/supabase.service";
+import { AuditLogsService } from "../audit-logs/audit-logs.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { UpdateConsultationDto } from "./dto/update-consultation.dto";
 import { UpdateAppointmentStatusDto } from "./dto/update-appointment-status.dto";
 
 @Injectable()
 export class AppointmentsService {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   async getMyAppointments(authorization: string | undefined) {
     const user = await this.getUserFromAuthorization(authorization);
@@ -134,6 +138,35 @@ export class AppointmentsService {
       throw new InternalServerErrorException(updateError.message);
     }
 
+    const { data: facility, error: facilityError } = await this.supabaseService.adminClient
+      .from("facilities")
+      .select("tenant_id, name")
+      .eq("id", dto.facilityId)
+      .single();
+
+    if (facilityError) {
+      throw new InternalServerErrorException(facilityError.message);
+    }
+
+    await this.auditLogsService.recordEvent({
+      authorization,
+      tenantId: facility.tenant_id,
+      facilityId: dto.facilityId,
+      eventType: "appointment.created",
+      entityType: "appointment",
+      entityId: appointment.id,
+      metadata: {
+        facilityName: facility.name,
+        patientUserId: user.id,
+        slotId: dto.slotId,
+        appointmentDate: appointment.appointment_date,
+        startTime: appointment.start_time,
+        endTime: appointment.end_time,
+        status: appointment.status,
+        serviceType: appointment.service_type,
+      },
+    });
+
     return {
       message: "Appointment confirmed",
       appointment,
@@ -145,6 +178,17 @@ export class AppointmentsService {
     dto: UpdateAppointmentStatusDto,
   ) {
     await this.getUserFromAuthorization(authorization);
+
+    const { data: existingAppointment, error: existingAppointmentError } =
+      await this.supabaseService.adminClient
+        .from("appointments")
+        .select("id, facility_id, status")
+        .eq("id", dto.appointmentId)
+        .single();
+
+    if (existingAppointmentError) {
+      throw new InternalServerErrorException(existingAppointmentError.message);
+    }
 
     const { data, error } = await this.supabaseService.adminClient
       .from("appointments")
@@ -158,6 +202,30 @@ export class AppointmentsService {
     if (error) {
       throw new InternalServerErrorException(error.message);
     }
+
+    const { data: facility, error: facilityError } = await this.supabaseService.adminClient
+      .from("facilities")
+      .select("tenant_id, name")
+      .eq("id", data.facility_id)
+      .single();
+
+    if (facilityError) {
+      throw new InternalServerErrorException(facilityError.message);
+    }
+
+    await this.auditLogsService.recordEvent({
+      authorization,
+      tenantId: facility.tenant_id,
+      facilityId: data.facility_id,
+      eventType: "appointment.status_updated",
+      entityType: "appointment",
+      entityId: data.id,
+      metadata: {
+        facilityName: facility.name,
+        previousStatus: existingAppointment.status,
+        nextStatus: data.status,
+      },
+    });
 
     return data;
   }
@@ -184,6 +252,33 @@ export class AppointmentsService {
     if (error) {
       throw new InternalServerErrorException(error.message);
     }
+
+    const { data: facility, error: facilityError } = await this.supabaseService.adminClient
+      .from("facilities")
+      .select("tenant_id, name")
+      .eq("id", data.facility_id)
+      .single();
+
+    if (facilityError) {
+      throw new InternalServerErrorException(facilityError.message);
+    }
+
+    await this.auditLogsService.recordEvent({
+      authorization,
+      tenantId: facility.tenant_id,
+      facilityId: data.facility_id,
+      eventType: "consultation.updated",
+      entityType: "appointment",
+      entityId: data.id,
+      metadata: {
+        facilityName: facility.name,
+        doctorUserId: user.id,
+        status: data.status,
+        hasConsultationNotes: Boolean(dto.consultationNotes),
+        hasDiagnosisSummary: Boolean(dto.diagnosisSummary),
+        hasPrescriptionNotes: Boolean(dto.prescriptionNotes),
+      },
+    });
 
     return data;
   }

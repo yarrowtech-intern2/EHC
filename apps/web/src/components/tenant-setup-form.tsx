@@ -7,6 +7,7 @@ import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { z } from "zod";
 
 import { UIButton } from "@/components/ui-button";
+import { useAuth } from "@/components/providers/auth-provider";
 import { apiRequest } from "@/lib/api";
 
 const tenantSetupSchema = z.object({
@@ -31,6 +32,7 @@ const tenantSetupSchema = z.object({
 type TenantSetupValues = z.infer<typeof tenantSetupSchema>;
 
 export function TenantSetupForm() {
+  const { session } = useAuth();
   const [resultMessage, setResultMessage] = useState<string | null>(null);
   const form = useForm<TenantSetupValues>({
     resolver: zodResolver(tenantSetupSchema),
@@ -55,6 +57,11 @@ export function TenantSetupForm() {
         tenant: { id: string; display_name: string };
       }>("/tenants", {
         method: "POST",
+        headers: session?.access_token
+          ? {
+              Authorization: `Bearer ${session.access_token}`,
+            }
+          : undefined,
         body: {
           legalName: values.legalName,
           displayName: values.displayName,
@@ -68,6 +75,11 @@ export function TenantSetupForm() {
         facility: { id: string; name: string };
       }>("/facilities", {
         method: "POST",
+        headers: session?.access_token
+          ? {
+              Authorization: `Bearer ${session.access_token}`,
+            }
+          : undefined,
         body: {
           tenantId: tenantResponse.tenant.id,
           name: values.facilityName,

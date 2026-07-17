@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { Check } from "lucide-react";
+import { Button } from "../common/Button";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 import { serviceStories } from "@/data/landing2-services";
 import { cdn } from "@/data/landing2-assets";
 
@@ -20,9 +21,17 @@ export function ServiceStories() {
     <section id="services" className="py-20 sm:py-28 bg-soft-bg">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
         <FadeIn className="text-center mb-20 sm:mb-28">
-          <h2 className="text-section text-primary-text">
-            Every service, one experience.
-          </h2>
+          <EditorialTitle
+            as="h2"
+            size="section"
+            className="mx-auto max-w-[860px]"
+            lines={[
+              <>
+                Every <EditorialHighlight>service,</EditorialHighlight>
+              </>,
+              "one experience.",
+            ]}
+          />
         </FadeIn>
 
         <div className="space-y-28 sm:space-y-36">
@@ -46,9 +55,13 @@ export function ServiceStories() {
                     </span>
                   </div>
 
-                  <h3 className="text-subsection text-primary-text">
-                    {service.heading}
-                  </h3>
+                  <EditorialTitle
+                    as="h3"
+                    align="left"
+                    size="subsection"
+                    className="max-w-[620px]"
+                    lines={[service.heading]}
+                  />
 
                   <ul className="mt-5 space-y-2.5">
                     {service.features.map((f) => (
@@ -63,12 +76,13 @@ export function ServiceStories() {
                   </ul>
 
                   <div className="mt-7">
-                    <Link
+                    <Button
                       href={service.ctaHref}
-                      className="inline-flex items-center px-5 py-2.5 text-[13px] font-semibold text-white bg-brand rounded-full hover:bg-brand-dark transition-colors"
+                      variant="primary"
+                      size="sm"
                     >
                       {service.cta}
-                    </Link>
+                    </Button>
                   </div>
                 </FadeIn>
 

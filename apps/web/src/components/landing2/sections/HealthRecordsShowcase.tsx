@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Stethoscope,
   Pill,
@@ -9,7 +8,9 @@ import {
   ShoppingCart,
   CalendarCheck,
 } from "lucide-react";
+import { Button } from "../common/Button";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 
 const timeline = [
   { icon: Stethoscope, label: "Doctor visit" },
@@ -25,9 +26,17 @@ export function HealthRecordsShowcase() {
     <section className="bg-background py-20 text-primary-text sm:py-28">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8 text-center">
         <FadeIn>
-          <h2 className="text-section mx-auto max-w-2xl text-primary-text">
-            Your healthcare story, organised over time.
-          </h2>
+          <EditorialTitle
+            as="h2"
+            size="section"
+            className="mx-auto max-w-[860px]"
+            lines={[
+              <>
+                Your healthcare <EditorialHighlight>story,</EditorialHighlight>
+              </>,
+              "organised over time.",
+            ]}
+          />
           <p className="mx-auto mt-4 max-w-lg text-base text-secondary-text">
             Medical records, prescriptions, diagnostics, appointments and
             billing — securely accessible from one place.
@@ -49,12 +58,13 @@ export function HealthRecordsShowcase() {
 
         <FadeIn delay={0.25}>
           <div className="mt-10">
-            <Link
+            <Button
               href="/login"
-              className="inline-flex items-center rounded-full bg-ambercare px-6 py-3 text-[14px] font-semibold text-primary-text transition-colors hover:bg-[#c99e79]"
+              variant="primary"
+              size="md"
             >
               Explore Health Records
-            </Link>
+            </Button>
           </div>
         </FadeIn>
       </div>

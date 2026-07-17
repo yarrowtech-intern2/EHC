@@ -26,23 +26,23 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#eeedfa]/92 backdrop-blur-md"
+          ? "bg-[#efefeb]/92 backdrop-blur-md"
           : "bg-transparent"
       }`}
       role="banner"
     >
       <nav
-        className="flex h-16 w-full items-center justify-between px-5 md:px-[8.4vw] xl:h-[76px]"
+        className="flex h-16 w-full items-center justify-between px-3 md:px-[8.4vw] xl:h-[76px]"
         role="navigation"
         aria-label="Main navigation"
       >
         <Link href="/" className="flex shrink-0 items-center gap-1.5 xl:gap-2">
           <span
-            className="relative h-5 w-5 overflow-hidden rounded-full bg-brand xl:h-7 xl:w-7"
+            className="relative h-5 w-5 overflow-hidden rounded-full bg-[#7779fc] md:bg-brand xl:h-7 xl:w-7"
             aria-hidden="true"
           >
-            <span className="absolute left-[5px] top-[-3px] h-7 w-2.5 rotate-[-42deg] rounded-full bg-[#eeedfa] xl:left-[7px] xl:top-[-4px] xl:h-10 xl:w-3.5" />
-            <span className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-[#eeedfa] xl:bottom-1.5 xl:right-1.5 xl:h-2 xl:w-2" />
+            <span className="absolute left-[5px] top-[-3px] h-7 w-2.5 rotate-[-42deg] rounded-full bg-[#efefeb] xl:left-[7px] xl:top-[-4px] xl:h-10 xl:w-3.5" />
+            <span className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-[#efefeb] xl:bottom-1.5 xl:right-1.5 xl:h-2 xl:w-2" />
           </span>
           <span className="text-[14px] font-bold text-[#090b13] xl:text-[18px]">
             EHC
@@ -78,16 +78,9 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <Link
-            href="/emergency-ambulance"
-            className="flex h-8 w-8 items-center justify-center bg-[#ffd5d8] text-emergency"
-            aria-label="Emergency Ambulance"
-          >
-            <Cross className="h-4 w-4 fill-emergency stroke-emergency" />
-          </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 text-primary-text"
+            className="p-2 text-[#aaa6ff]"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
@@ -103,7 +96,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 top-16 z-40 bg-[#eeedfa] md:hidden"
+            className="fixed inset-0 top-16 z-40 bg-[#efefeb] md:hidden"
           >
             <div className="flex flex-col p-6 gap-0.5">
               {links.map((link) => (

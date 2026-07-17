@@ -2,16 +2,23 @@
 
 import Link from "next/link";
 import { Ambulance } from "lucide-react";
+import { Button } from "../common/Button";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 
 export function FinalCTA() {
   return (
     <section className="py-24 sm:py-36 px-5 sm:px-8 text-center">
       <div className="mx-auto max-w-2xl">
         <FadeIn>
-          <h2 className="text-section text-primary-text">
-            Start here.
-          </h2>
+          <EditorialTitle
+            as="h2"
+            size="section"
+            lines={[
+              "Start",
+              <EditorialHighlight key="final-cta">here.</EditorialHighlight>,
+            ]}
+          />
           <p className="mt-4 text-base text-secondary-text leading-relaxed">
             Join as a patient, healthcare professional or service provider.
           </p>
@@ -19,24 +26,27 @@ export function FinalCTA() {
 
         <FadeIn delay={0.1}>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
+            <Button
               href="/register"
-              className="px-7 py-3 text-[14px] font-semibold text-white bg-brand rounded-full hover:bg-brand-dark transition-colors"
+              variant="primary"
+              size="lg"
             >
               Get Started
-            </Link>
-            <Link
+            </Button>
+            <Button
               href="/login"
-              className="px-7 py-3 text-[14px] font-medium text-primary-text border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
+              variant="secondary"
+              size="lg"
             >
               Sign In
-            </Link>
-            <Link
+            </Button>
+            <Button
               href="/request-demo"
-              className="px-7 py-3 text-[14px] font-medium text-secondary-text hover:text-primary-text transition-colors"
+              variant="secondary"
+              size="lg"
             >
               Request a Demo
-            </Link>
+            </Button>
           </div>
 
           <div className="mt-6">

@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { Stethoscope, Ambulance, Droplets, Pill, Microscope, Building2 } from "lucide-react";
+import { Button } from "../common/Button";
 import { FadeIn } from "../common/FadeIn";
+import { EditorialHighlight, EditorialTitle } from "../common/EditorialTitle";
 import { cdn } from "@/data/landing2-assets";
 
 const partners = [
@@ -23,9 +24,18 @@ export function PartnerSection() {
             <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-brand mb-4">
               Partners
             </p>
-            <h2 className="text-section text-primary-text leading-tight">
-              Bring your service onto one platform.
-            </h2>
+            <EditorialTitle
+              as="h2"
+              align="left"
+              size="section"
+              className="max-w-[760px]"
+              lines={[
+                <>
+                  Bring your <EditorialHighlight>service</EditorialHighlight>
+                </>,
+                "onto one platform.",
+              ]}
+            />
             <p className="mt-4 text-[15px] text-secondary-text leading-relaxed max-w-md">
               Join as a doctor, ambulance provider, blood bank, pharmacy or
               diagnostic centre.
@@ -44,18 +54,20 @@ export function PartnerSection() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
+              <Button
                 href="/partner-registration"
-                className="px-6 py-3 text-[14px] font-semibold text-white bg-brand rounded-full hover:bg-brand-dark transition-colors"
+                variant="primary"
+                size="md"
               >
                 Become a Partner
-              </Link>
-              <Link
+              </Button>
+              <Button
                 href="/request-demo"
-                className="px-6 py-3 text-[14px] font-medium text-primary-text border border-gray-200 rounded-full hover:bg-white transition-colors"
+                variant="secondary"
+                size="md"
               >
                 Request a Demo
-              </Link>
+              </Button>
             </div>
           </FadeIn>
 
