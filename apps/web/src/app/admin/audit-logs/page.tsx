@@ -62,7 +62,18 @@ export default function AdminAuditLogsPage() {
   });
 
   useEffect(() => {
-    Promise.all([apiRequest<Tenant[]>("/tenants/public"), apiRequest<Facility[]>("/facilities/public")])
+    if (!session?.access_token) {
+      return;
+    }
+
+    const headers = {
+      Authorization: `Bearer ${session.access_token}`,
+    };
+
+    Promise.all([
+      apiRequest<Tenant[]>("/tenants/mine", { headers }),
+      apiRequest<Facility[]>("/facilities/mine", { headers }),
+    ])
       .then(([tenantData, facilityData]) => {
         setTenants(tenantData);
         setFacilities(facilityData);
@@ -74,7 +85,7 @@ export default function AdminAuditLogsPage() {
       .catch((error) =>
         setMessage(error instanceof Error ? error.message : "Could not load audit filter data."),
       );
-  }, []);
+  }, [session?.access_token]);
 
   const visibleFacilities = useMemo(
     () => facilities.filter((facility) => facility.tenant_id === filters.tenantId),

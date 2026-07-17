@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import type { User } from "@supabase/supabase-js";
 
+import { assertFacilityAccess } from "../../common/access-control";
 import { SupabaseService } from "../../config/supabase.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
@@ -41,7 +42,14 @@ export class AppointmentsService {
     authorization: string | undefined,
     facilityId: string,
   ) {
-    await this.getUserFromAuthorization(authorization);
+    const user = await this.getUserFromAuthorization(authorization);
+    await assertFacilityAccess(this.supabaseService, user.id, facilityId, [
+      "tenant_admin",
+      "pharmacy_admin",
+      "ambulance_admin",
+      "blood_bank_admin",
+      "doctor",
+    ]);
 
     const { data, error } = await this.supabaseService.adminClient
       .from("appointments")
@@ -177,7 +185,7 @@ export class AppointmentsService {
     authorization: string | undefined,
     dto: UpdateAppointmentStatusDto,
   ) {
-    await this.getUserFromAuthorization(authorization);
+    const user = await this.getUserFromAuthorization(authorization);
 
     const { data: existingAppointment, error: existingAppointmentError } =
       await this.supabaseService.adminClient
@@ -189,6 +197,19 @@ export class AppointmentsService {
     if (existingAppointmentError) {
       throw new InternalServerErrorException(existingAppointmentError.message);
     }
+
+    await assertFacilityAccess(
+      this.supabaseService,
+      user.id,
+      existingAppointment.facility_id,
+      [
+        "tenant_admin",
+        "pharmacy_admin",
+        "ambulance_admin",
+        "blood_bank_admin",
+        "doctor",
+      ],
+    );
 
     const { data, error } = await this.supabaseService.adminClient
       .from("appointments")

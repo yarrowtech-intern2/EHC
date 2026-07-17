@@ -85,12 +85,16 @@ Signup UX rule:
 - Patient profile completion screen and facility discovery screen
 - NestJS module boundaries for Phase 1
 - Supabase migrations for tenants, facilities, profiles, roles, audit logs, and onboarding sessions
+- Tenant-aware audit log UI under `/admin/audit-logs`
+- Scoped admin tenant and facility endpoints for operational screens
+- Backend access checks for tenant setup, facility setup, team management, slot creation, and appointment operations
+- RLS hardening migration for audit logs and Phase 1 appointment tables
 
-## Immediate next implementation slice
+## Phase 1 closure checklist
 
-1. Install dependencies
-2. Connect Supabase env vars
-3. Implement real auth flows
-4. Add tenant and facility creation forms
-5. Persist onboarding progress
-6. Add guarded admin dashboard routes
+1. Apply `supabase/migrations/20260717_phase1_rls_hardening.sql` in the target Supabase environment.
+2. Create a tenant from the admin setup flow and confirm the creator receives `tenant_admin`.
+3. Create the primary facility and confirm it appears in scoped admin selectors.
+4. Assign a staff role, create a slot, book an appointment, and update appointment status.
+5. Confirm `/admin/audit-logs` shows the resulting tenant-scoped event stream.
+6. If the smoke test passes, move to Phase 2: Patient + Doctor MVP depth.

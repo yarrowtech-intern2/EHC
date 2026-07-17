@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/api";
 
 type Facility = {
   id: string;
+  tenant_id: string;
   name: string;
   type: string;
   city: string | null;
@@ -42,7 +43,15 @@ export default function AdminAppointmentsPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    apiRequest<Facility[]>("/facilities/public")
+    if (!session?.access_token) {
+      return;
+    }
+
+    apiRequest<Facility[]>("/facilities/mine", {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    })
       .then((data) => {
         setFacilities(data);
         if (data[0]) {
@@ -50,7 +59,7 @@ export default function AdminAppointmentsPage() {
         }
       })
       .catch(() => setFacilities([]));
-  }, []);
+  }, [session?.access_token]);
 
   useEffect(() => {
     if (!session?.access_token || !selectedFacilityId) {
@@ -218,4 +227,3 @@ export default function AdminAppointmentsPage() {
     </main>
   );
 }
-

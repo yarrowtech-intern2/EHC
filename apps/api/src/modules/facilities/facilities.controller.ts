@@ -17,6 +17,11 @@ export class FacilitiesController {
     return this.facilitiesService.getPublicFacilities();
   }
 
+  @Get("mine")
+  getMyFacilities(@Headers("authorization") authorization: string | undefined) {
+    return this.facilitiesService.getMyFacilities(authorization);
+  }
+
   @Get("public/:id")
   getPublicFacilityById(@Param("id") id: string) {
     return this.facilitiesService.getPublicFacilityById(id);

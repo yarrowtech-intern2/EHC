@@ -4,6 +4,11 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 
+import {
+  assertTenantAccess,
+  getAccessibleTenantIds,
+  getUserFromAuthorization,
+} from "../../common/access-control";
 import { SupabaseService } from "../../config/supabase.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
@@ -40,6 +45,27 @@ export class FacilitiesService {
     return data;
   }
 
+  async getMyFacilities(authorization: string | undefined) {
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
+    const tenantIds = await getAccessibleTenantIds(this.supabaseService, user.id);
+
+    if (tenantIds.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await this.supabaseService.adminClient
+      .from("facilities")
+      .select("id, tenant_id, name, type, city")
+      .in("tenant_id", tenantIds)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return data;
+  }
+
   async getPublicFacilityById(id: string) {
     const { data, error } = await this.supabaseService.adminClient
       .from("facilities")
@@ -59,6 +85,14 @@ export class FacilitiesService {
   }
 
   async createFacility(dto: CreateFacilityDto, authorization?: string) {
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
+    await assertTenantAccess(
+      this.supabaseService,
+      user.id,
+      dto.tenantId,
+      ["tenant_admin"],
+    );
+
     const { data, error } = await this.supabaseService.adminClient
       .from("facilities")
       .insert({

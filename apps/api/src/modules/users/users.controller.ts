@@ -13,16 +13,21 @@ export class UsersController {
   }
 
   @Get("doctors")
-  getDoctors() {
-    return this.usersService.getDoctors();
+  getDoctors(
+    @Headers("authorization") authorization: string | undefined,
+    @Query("tenantId") tenantId?: string,
+    @Query("facilityId") facilityId?: string,
+  ) {
+    return this.usersService.getDoctors(authorization, tenantId, facilityId);
   }
 
   @Get("members")
   getMembers(
+    @Headers("authorization") authorization: string | undefined,
     @Query("tenantId") tenantId?: string,
     @Query("facilityId") facilityId?: string,
   ) {
-    return this.usersService.getMembers(tenantId, facilityId);
+    return this.usersService.getMembers(authorization, tenantId, facilityId);
   }
 
   @Post("assign-role")

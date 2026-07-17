@@ -12,6 +12,9 @@ const links = [
   { label: "Security", href: "#security" },
 ];
 
+const logoImage =
+  "https://res.cloudinary.com/dc3qprub3/image/upload/f_auto,q_auto,w_160/v1784277032/1_i9ichu.png";
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,17 +39,15 @@ export function Navbar() {
         role="navigation"
         aria-label="Main navigation"
       >
-        <Link href="/" className="flex shrink-0 items-center gap-1.5 xl:gap-2">
-          <span
-            className="relative h-5 w-5 overflow-hidden rounded-full bg-[#7779fc] md:bg-brand xl:h-7 xl:w-7"
-            aria-hidden="true"
-          >
-            <span className="absolute left-[5px] top-[-3px] h-7 w-2.5 rotate-[-42deg] rounded-full bg-[#efefeb] xl:left-[7px] xl:top-[-4px] xl:h-10 xl:w-3.5" />
-            <span className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-[#efefeb] xl:bottom-1.5 xl:right-1.5 xl:h-2 xl:w-2" />
-          </span>
-          <span className="text-[14px] font-bold text-[#090b13] xl:text-[18px]">
-            EHC
-          </span>
+        <Link href="/" className="flex shrink-0 items-center">
+          <img
+            src={logoImage}
+            alt="EHC"
+            className="h-6 w-auto select-none xl:h-8"
+            loading="eager"
+            decoding="async"
+            draggable={false}
+          />
         </Link>
 
         <div className="ml-auto hidden items-center gap-4 md:flex xl:gap-8">

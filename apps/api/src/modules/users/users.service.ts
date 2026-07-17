@@ -5,6 +5,12 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 
+import {
+  assertFacilityAccess,
+  assertTenantAccess,
+  getAccessibleTenantIds,
+  getUserFromAuthorization,
+} from "../../common/access-control";
 import { SupabaseService } from "../../config/supabase.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 import { AssignUserRoleDto } from "./dto/assign-user-role.dto";
@@ -28,12 +34,44 @@ export class UsersService {
     ];
   }
 
-  async getMembers(tenantId?: string, facilityId?: string) {
+  async getMembers(
+    authorization: string | undefined,
+    tenantId?: string,
+    facilityId?: string,
+  ) {
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
+    const scopedTenantIds = tenantId
+      ? [tenantId]
+      : await getAccessibleTenantIds(this.supabaseService, user.id);
+
+    if (scopedTenantIds.length === 0) {
+      return [];
+    }
+
+    if (tenantId) {
+      await assertTenantAccess(this.supabaseService, user.id, tenantId, [
+        "tenant_admin",
+        "pharmacy_admin",
+        "ambulance_admin",
+        "blood_bank_admin",
+      ]);
+    }
+
+    if (facilityId) {
+      await assertFacilityAccess(this.supabaseService, user.id, facilityId, [
+        "tenant_admin",
+        "pharmacy_admin",
+        "ambulance_admin",
+        "blood_bank_admin",
+      ]);
+    }
+
     let query = this.supabaseService.adminClient
       .from("user_roles")
       .select(
         "id, user_id, tenant_id, facility_id, role, created_at, profiles(full_name, email, phone), tenants(display_name), facilities(name)",
       )
+      .in("tenant_id", scopedTenantIds)
       .order("created_at", { ascending: false });
 
     if (tenantId) {
@@ -75,11 +113,39 @@ export class UsersService {
     }));
   }
 
-  async getDoctors() {
-    const { data, error } = await this.supabaseService.adminClient
+  async getDoctors(
+    authorization: string | undefined,
+    tenantId?: string,
+    facilityId?: string,
+  ) {
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
+    const scopedTenantIds = tenantId
+      ? [tenantId]
+      : await getAccessibleTenantIds(this.supabaseService, user.id);
+
+    if (scopedTenantIds.length === 0) {
+      return [];
+    }
+
+    if (tenantId) {
+      await assertTenantAccess(this.supabaseService, user.id, tenantId);
+    }
+
+    if (facilityId) {
+      await assertFacilityAccess(this.supabaseService, user.id, facilityId);
+    }
+
+    let query = this.supabaseService.adminClient
       .from("user_roles")
       .select("user_id, profiles(full_name, email, phone)")
+      .in("tenant_id", scopedTenantIds)
       .eq("role", "doctor");
+
+    if (facilityId) {
+      query = query.eq("facility_id", facilityId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new InternalServerErrorException(error.message);
@@ -94,6 +160,21 @@ export class UsersService {
   }
 
   async assignRole(dto: AssignUserRoleDto, authorization?: string) {
+    const actor = await getUserFromAuthorization(this.supabaseService, authorization);
+    await assertTenantAccess(this.supabaseService, actor.id, dto.tenantId, [
+      "tenant_admin",
+    ]);
+
+    if (dto.facilityId) {
+      const facility = await assertFacilityAccess(this.supabaseService, actor.id, dto.facilityId, [
+        "tenant_admin",
+      ]);
+
+      if (facility.tenant_id !== dto.tenantId) {
+        throw new BadRequestException("Facility does not belong to the selected tenant.");
+      }
+    }
+
     const normalizedEmail = dto.email.trim().toLowerCase();
 
     if (!normalizedEmail) {

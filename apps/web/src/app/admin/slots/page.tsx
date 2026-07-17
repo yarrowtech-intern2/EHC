@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/api";
 
 type Facility = {
   id: string;
+  tenant_id: string;
   name: string;
   type: string;
   city: string | null;
@@ -37,7 +38,15 @@ export default function AdminSlotsPage() {
   });
 
   useEffect(() => {
-    apiRequest<Facility[]>("/facilities/public")
+    if (!session?.access_token) {
+      return;
+    }
+
+    apiRequest<Facility[]>("/facilities/mine", {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    })
       .then((data) => {
         setFacilities(data);
         if (data[0]) {
@@ -45,13 +54,30 @@ export default function AdminSlotsPage() {
         }
       })
       .catch(() => setFacilities([]));
-  }, []);
+  }, [session?.access_token]);
 
   useEffect(() => {
-    apiRequest<Doctor[]>("/users/doctors")
+    if (!session?.access_token || !form.facilityId) {
+      return;
+    }
+
+    const facility = facilities.find((item) => item.id === form.facilityId);
+    const params = new URLSearchParams();
+
+    params.set("facilityId", form.facilityId);
+
+    if (facility?.tenant_id) {
+      params.set("tenantId", facility.tenant_id);
+    }
+
+    apiRequest<Doctor[]>(`/users/doctors?${params.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    })
       .then(setDoctors)
       .catch(() => setDoctors([]));
-  }, []);
+  }, [facilities, form.facilityId, session?.access_token]);
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

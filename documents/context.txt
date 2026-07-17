@@ -1,6 +1,6 @@
 Phase 1 current position
 
-The Phase 1 foundation is largely in place now.
+The Phase 1 foundation is now patched for the two previous closure items.
 Implemented or already scaffolded across the repo:
 
 tenant setup
@@ -10,28 +10,25 @@ admin dashboard shell
 slots and appointments flow
 team management
 doctor workspace
-audit log backend foundation
-RLS enabled on core Phase 1 tables
+tenant-aware audit log UI
+audit events for tenant setup, facility setup, role assignment, slot creation, appointment creation, appointment status updates, and consultation updates
+scoped admin tenant/facility filter endpoints
+backend tenant/facility access checks for core admin operations
+RLS hardening migration for audit logs, appointment slots, appointments, appointment requests, and profile self-updates
 
-Phase 1 remaining high-priority work
+Phase 1 remaining closure checks
 
-audit log UI
-production hardening / full RLS review
-
-Recommended next steps
-
-1. Build audit log UI first.
-This is the strongest next move because the admin side already supports setup and operations, but still lacks an operational visibility layer. The goal is a tenant-aware audit log screen with filters for actor, action, module, date, and facility where applicable.
-
-2. Connect the UI to real audit data end to end.
-Do not stop at a placeholder page. Confirm privileged actions from tenant setup, team management, slot creation, and appointment handling are actually written into the audit stream and visible in the admin console.
-
-3. Run a production hardening and RLS pass immediately after the audit UI lands.
-Review every Phase 1 table, policy, and API path for tenant isolation, least-privilege access, and role correctness. Treat this as the Phase 1 closure gate before calling the foundation complete.
-
-4. Define the Phase 2 entry slice once the above is stable.
-The clean handoff after Phase 1 is to expand the patient-doctor workflow, not to start unrelated modules. The first Phase 2 slice should be consultation workflow depth, patient record capture, and prescription-ready visit documentation.
+apply the latest Supabase migration in the target environment
+manual smoke test with real Supabase data:
+create tenant
+create facility
+assign staff role
+create slot
+book appointment
+update appointment status
+confirm each event appears in /admin/audit-logs
 
 Current recommendation
 
-Finish audit log UI now, then close Phase 1 with the hardening / RLS review. After that, move directly into the first deeper Patient + Doctor MVP slice.
+After applying the migration and passing the smoke test, Phase 1 can be considered closed enough to start Phase 2.
+The first Phase 2 slice should be the deeper Patient + Doctor MVP workflow: consultation notes, patient record capture, and prescription-ready visit documentation.

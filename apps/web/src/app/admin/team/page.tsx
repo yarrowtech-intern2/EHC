@@ -50,9 +50,17 @@ export default function AdminTeamPage() {
   });
 
   useEffect(() => {
+    if (!session?.access_token) {
+      return;
+    }
+
+    const headers = {
+      Authorization: `Bearer ${session.access_token}`,
+    };
+
     Promise.all([
-      apiRequest<Tenant[]>("/tenants/public"),
-      apiRequest<Facility[]>("/facilities/public"),
+      apiRequest<Tenant[]>("/tenants/mine", { headers }),
+      apiRequest<Facility[]>("/facilities/mine", { headers }),
       apiRequest<string[]>("/users/roles"),
     ])
       .then(([tenantData, facilityData, roleData]) => {
@@ -67,7 +75,7 @@ export default function AdminTeamPage() {
       .catch((error) =>
         setMessage(error instanceof Error ? error.message : "Could not load team setup data."),
       );
-  }, []);
+  }, [session?.access_token]);
 
   const visibleFacilities = useMemo(
     () => facilities.filter((facility) => facility.tenant_id === form.tenantId),

@@ -1,5 +1,9 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 
+import {
+  getAccessibleTenantIds,
+  getUserFromAuthorization,
+} from "../../common/access-control";
 import { SupabaseService } from "../../config/supabase.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
@@ -39,7 +43,30 @@ export class TenantsService {
     return data;
   }
 
+  async getMyTenants(authorization: string | undefined) {
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
+    const tenantIds = await getAccessibleTenantIds(this.supabaseService, user.id);
+
+    if (tenantIds.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await this.supabaseService.adminClient
+      .from("tenants")
+      .select("id, legal_name, display_name, category, country_code, status, created_at")
+      .in("id", tenantIds)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return data;
+  }
+
   async createTenant(dto: CreateTenantDto, authorization?: string) {
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
+
     const { data, error } = await this.supabaseService.adminClient
       .from("tenants")
       .insert({
@@ -56,6 +83,31 @@ export class TenantsService {
       throw new InternalServerErrorException(error.message);
     }
 
+    const { error: roleError } = await this.supabaseService.adminClient
+      .from("user_roles")
+      .insert({
+        user_id: user.id,
+        tenant_id: data.id,
+        facility_id: null,
+        role: "tenant_admin",
+      });
+
+    if (roleError) {
+      throw new InternalServerErrorException(roleError.message);
+    }
+
+    const { error: profileError } = await this.supabaseService.adminClient
+      .from("profiles")
+      .update({
+        tenant_id: data.id,
+        status: "active",
+      })
+      .eq("id", user.id);
+
+    if (profileError) {
+      throw new InternalServerErrorException(profileError.message);
+    }
+
     await this.auditLogsService.recordEvent({
       authorization,
       tenantId: data.id,
@@ -66,6 +118,7 @@ export class TenantsService {
         displayName: data.display_name,
         category: data.category,
         status: data.status,
+        creatorRole: "tenant_admin",
       },
     });
 

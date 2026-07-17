@@ -1,5 +1,9 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 
+import {
+  assertFacilityAccess,
+  getUserFromAuthorization,
+} from "../../common/access-control";
 import { SupabaseService } from "../../config/supabase.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 import { CreateAppointmentSlotDto } from "./dto/create-appointment-slot.dto";
@@ -36,6 +40,12 @@ export class AppointmentSlotsService {
   }
 
   async createSlot(dto: CreateAppointmentSlotDto, authorization?: string) {
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
+    await assertFacilityAccess(this.supabaseService, user.id, dto.facilityId, [
+      "tenant_admin",
+      "doctor",
+    ]);
+
     const { data: facility, error: facilityError } = await this.supabaseService.adminClient
       .from("facilities")
       .select("id, tenant_id, name")

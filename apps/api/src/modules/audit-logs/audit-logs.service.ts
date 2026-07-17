@@ -5,6 +5,10 @@ import {
 } from "@nestjs/common";
 import type { User } from "@supabase/supabase-js";
 
+import {
+  getAccessibleTenantIds,
+  getUserFromAuthorization,
+} from "../../common/access-control";
 import { SupabaseService } from "../../config/supabase.service";
 
 type AuditLogFilters = {
@@ -32,6 +36,13 @@ type AuditLogRecordParams = {
 export class AuditLogsService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
+  private readonly auditReaderRoles = [
+    "tenant_admin",
+    "pharmacy_admin",
+    "ambulance_admin",
+    "blood_bank_admin",
+  ] as const;
+
   getTemplate() {
     return {
       eventTypes: [
@@ -46,13 +57,13 @@ export class AuditLogsService {
   }
 
   async getLogs(authorization: string | undefined, filters: AuditLogFilters) {
-    const user = await this.getUserFromAuthorization(authorization);
+    const user = await getUserFromAuthorization(this.supabaseService, authorization);
 
-    if (!user) {
-      throw new UnauthorizedException("Missing bearer token.");
-    }
-
-    const accessibleTenantIds = await this.getAccessibleTenantIds(user.id);
+    const accessibleTenantIds = await getAccessibleTenantIds(
+      this.supabaseService,
+      user.id,
+      [...this.auditReaderRoles],
+    );
 
     if (accessibleTenantIds.length === 0) {
       return [];
@@ -143,7 +154,7 @@ export class AuditLogsService {
     metadata,
   }: AuditLogRecordParams) {
     const actor = authorization
-      ? await this.getUserFromAuthorization(authorization, false)
+      ? await this.getOptionalUserFromAuthorization(authorization)
       : null;
 
     const actorMetadata = actor
@@ -184,22 +195,6 @@ export class AuditLogsService {
     return Math.min(parsed, 200);
   }
 
-  private async getAccessibleTenantIds(userId: string) {
-    const { data, error } = await this.supabaseService.adminClient
-      .from("user_roles")
-      .select("tenant_id")
-      .eq("user_id", userId)
-      .not("tenant_id", "is", null);
-
-    if (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-
-    return Array.from(
-      new Set(data.map((entry) => entry.tenant_id).filter(Boolean) as string[]),
-    );
-  }
-
   private async getProfileMap(userIds: string[]) {
     if (userIds.length === 0) {
       return new Map<string, { full_name: string | null; email: string | null }>();
@@ -225,27 +220,18 @@ export class AuditLogsService {
     );
   }
 
-  private async getUserFromAuthorization(
+  private async getOptionalUserFromAuthorization(
     authorization: string | undefined,
-    required = true,
   ): Promise<User | null> {
     const token = authorization?.replace(/^Bearer\s+/i, "").trim();
 
     if (!token) {
-      if (required) {
-        throw new UnauthorizedException("Missing bearer token.");
-      }
-
       return null;
     }
 
     const { data, error } = await this.supabaseService.adminClient.auth.getUser(token);
 
     if (error || !data.user) {
-      if (required) {
-        throw new UnauthorizedException(error?.message ?? "Invalid session token.");
-      }
-
       return null;
     }
 

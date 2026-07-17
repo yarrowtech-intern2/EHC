@@ -17,6 +17,11 @@ export class TenantsController {
     return this.tenantsService.getPublicTenants();
   }
 
+  @Get("mine")
+  getMyTenants(@Headers("authorization") authorization: string | undefined) {
+    return this.tenantsService.getMyTenants(authorization);
+  }
+
   @Post()
   createTenant(
     @Body() dto: CreateTenantDto,
