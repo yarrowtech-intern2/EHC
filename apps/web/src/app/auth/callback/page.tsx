@@ -46,6 +46,9 @@ export default function AuthCallbackPage() {
           body: {
             actorType,
             onboardingSessionId: pendingSignup?.onboardingSessionId,
+            age: pendingSignup?.age,
+            bloodGroup: pendingSignup?.bloodGroup,
+            location: pendingSignup?.location,
           },
         });
       } finally {

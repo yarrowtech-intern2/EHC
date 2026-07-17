@@ -1,58 +1,79 @@
 import Link from "next/link";
-import { ArrowLeft, Smartphone, Sparkles } from "lucide-react";
+import { ArrowLeft, Cross } from "lucide-react";
 
-import { AuthSignupForm } from "@/components/auth-signup-form";
+import { PatientSignupForm } from "@/components/patient-signup-form";
+
+const logoImage =
+  "https://res.cloudinary.com/dc3qprub3/image/upload/f_auto,q_auto,w_160/v1784277032/1_i9ichu.png";
+
+const navLinks = [
+  { label: "Services", href: "/landing2#services" },
+  { label: "Platform", href: "/landing2#platform" },
+  { label: "Partners", href: "/landing2#partners" },
+  { label: "Security", href: "/landing2#security" },
+];
 
 export default function SignupPage() {
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-full bg-white/75 px-4 py-2 text-sm font-medium text-sapphire shadow-card"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to home
+    <main className="min-h-screen bg-[#efefeb] text-[#050608]">
+      <header className="mx-auto flex h-[76px] w-full max-w-[1740px] items-center justify-between px-5 sm:px-[8.4vw]">
+        <Link href="/" className="flex shrink-0 items-center">
+          <img
+            src={logoImage}
+            alt="EHC"
+            className="h-7 w-auto select-none sm:h-8"
+            loading="eager"
+            decoding="async"
+            draggable={false}
+          />
         </Link>
 
-        <section className="mt-4 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <aside className="rounded-[32px] border border-sapphire/10 bg-cloud p-6 text-ink shadow-card sm:p-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-skywash px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-sapphire">
-              <Sparkles className="h-4 w-4" />
-              Main customer path
-            </div>
-            <h1 className="mt-5 text-3xl font-semibold sm:text-4xl">
-              Patients can start directly without an organization invite.
-            </h1>
-            <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base">
-              This Phase 1 flow keeps patients first, while still supporting
-              tenant admins and facility operators with the same onboarding engine.
-            </p>
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Signup page navigation">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-[14px] font-medium text-[#090b13] transition-colors hover:text-[#7779fc]"
+            >
+              {link.label}
+            </a>
+          ))}
+          <Link
+            href="/emergency-ambulance"
+            className="flex h-9 w-9 items-center justify-center bg-[#ffd5d8] text-emergency transition-colors hover:bg-[#ffc2c6]"
+            aria-label="Emergency Ambulance"
+          >
+            <Cross className="h-5 w-5 fill-emergency stroke-emergency" />
+          </Link>
+        </nav>
+      </header>
 
-            <div className="mt-8 space-y-4">
-              <div className="rounded-[24px] bg-skywash/40 p-4">
-                <p className="text-sm font-semibold">Why phone OTP is prominent</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Mobile-first onboarding works better for patients in urgent or
-                  low-friction scenarios.
-                </p>
-              </div>
-              <div className="rounded-[24px] bg-skywash/40 p-4">
-                <div className="flex items-center gap-3">
-                  <Smartphone className="h-5 w-5" />
-                  <p className="text-sm font-semibold">Skip-friendly flow</p>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Optional details can be skipped now and completed later without
-                  blocking the patient from entering the system.
-                </p>
-              </div>
-            </div>
-          </aside>
+      <section className="flex min-h-[calc(100vh-76px)] items-start justify-center px-5 pt-[54px] sm:pt-[60px]">
+        <div className="w-full max-w-[520px]">
+          <Link
+            href="/"
+            className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#d9d9d9] text-[#5d5d5d] transition-colors hover:bg-[#cecece]"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
 
-          <AuthSignupForm />
-        </section>
-      </div>
+          <PatientSignupForm />
+
+          <p className="mt-5 text-center text-[13px] text-[#575757]">
+            Already have an account?{" "}
+            <Link href="/login" className="font-bold uppercase text-[#7779fc]">
+              Sign in
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-[13px] text-[#575757]">
+            Healthcare provider?{" "}
+            <Link href="/provider-signup" className="font-bold uppercase text-[#7779fc]">
+              Provider signup
+            </Link>
+          </p>
+        </div>
+      </section>
     </main>
   );
 }

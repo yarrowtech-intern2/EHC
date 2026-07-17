@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CheckCircle2,
@@ -14,9 +14,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { UIButton } from "@/components/ui-button";
 import { apiRequest } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import {
   getAuthRedirectPath,
   getSupabaseBrowserClient,
@@ -26,9 +24,9 @@ import {
 
 const signupSchema = z
   .object({
-    actorType: z.enum(["patient", "tenant_admin", "facility_operator"]),
+    actorType: z.enum(["tenant_admin", "facility_operator"]),
     signupMethod: z.enum(["email_password", "google", "magic_link"]),
-    fullName: z.string().min(2, "Enter a valid name"),
+    fullName: z.string().min(2, "Enter your name"),
     email: z.string().email("Enter a valid email").optional().or(z.literal("")),
     organizationName: z.string().optional(),
     password: z.string().optional(),
@@ -37,7 +35,7 @@ const signupSchema = z
     if (!value.email) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Email is required for this sign-up method",
+        message: "Email is required",
         path: ["email"],
       });
     }
@@ -45,50 +43,33 @@ const signupSchema = z
     if (value.signupMethod === "email_password" && (!value.password || value.password.length < 8)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Password must be at least 8 characters",
+        message: "Use at least 8 characters",
         path: ["password"],
+      });
+    }
+
+    if (!value.organizationName || value.organizationName.trim().length < 2) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Organization is required",
+        path: ["organizationName"],
       });
     }
   });
 
 type SignupValues = z.infer<typeof signupSchema>;
 
-const steps = ["Choose role", "Choose sign-in", "Identity details", "Review"];
+const steps = ["Access", "Method", "Details", "Review"] as const;
 
 const roleChoices = [
-  {
-    value: "patient",
-    title: "Patient",
-    text: "Main customer path for appointments, care, medicine, and emergency help.",
-  },
-  {
-    value: "tenant_admin",
-    title: "Tenant Admin",
-    text: "Create an organization and manage branches, teams, and onboarding.",
-  },
-  {
-    value: "facility_operator",
-    title: "Facility Operator",
-    text: "Operate a clinic, pharmacy, lab, or ambulance unit inside a tenant.",
-  },
+  { value: "tenant_admin", label: "Tenant Admin" },
+  { value: "facility_operator", label: "Facility Operator" },
 ] as const;
 
 const methodChoices = [
-  {
-    value: "email_password",
-    title: "Email and password",
-    text: "Create an account directly in EHC.",
-  },
-  {
-    value: "google",
-    title: "Google",
-    text: "Fast sign-in for patients and staff.",
-  },
-  {
-    value: "magic_link",
-    title: "Magic link",
-    text: "Passwordless email access.",
-  },
+  { value: "email_password", label: "Email + Password" },
+  { value: "google", label: "Google" },
+  { value: "magic_link", label: "Magic Link" },
 ] as const;
 
 export function AuthSignupForm() {
@@ -100,7 +81,7 @@ export function AuthSignupForm() {
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      actorType: "patient",
+      actorType: "tenant_admin",
       signupMethod: "email_password",
       fullName: "",
       email: "",
@@ -111,25 +92,25 @@ export function AuthSignupForm() {
 
   const actorType = form.watch("actorType");
   const signupMethod = form.watch("signupMethod");
-  const isPatient = actorType === "patient";
 
   const reviewItems = useMemo(
     () => [
-      { label: "Role", value: actorType.replace("_", " ") },
+      { label: "Access", value: actorType.replace("_", " ") },
       { label: "Method", value: signupMethod.replace("_", " ") },
       { label: "Name", value: form.getValues("fullName") || "Not added" },
       { label: "Email", value: form.getValues("email") || "Required" },
       {
         label: "Organization",
-        value: form.getValues("organizationName") || (isPatient ? "Independent patient" : "Skipped"),
+        value: form.getValues("organizationName") || "Required",
       },
     ],
-    [actorType, form, isPatient, signupMethod],
+    [actorType, form, signupMethod],
   );
 
   const moveNext = async () => {
     if (currentStep === 2) {
       const valid = await form.trigger(["fullName", "email", "organizationName", "password"]);
+
       if (!valid) {
         return;
       }
@@ -139,13 +120,6 @@ export function AuthSignupForm() {
   };
 
   const moveBack = () => setCurrentStep((value) => Math.max(0, value - 1));
-
-  const skipOptional = () => {
-    if (currentStep === 2) {
-      form.setValue("organizationName", "");
-    }
-    moveNext();
-  };
 
   const onSubmit = form.handleSubmit(async (values) => {
     const supabase = getSupabaseBrowserClient();
@@ -180,9 +154,7 @@ export function AuthSignupForm() {
 
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
-          options: {
-            redirectTo,
-          },
+          options: { redirectTo },
         });
 
         if (error) {
@@ -216,7 +188,7 @@ export function AuthSignupForm() {
           throw error;
         }
 
-        setSubmitMessage("Magic link sent. Open the email to continue sign in.");
+        setSubmitMessage("Magic link sent. Open your email to continue.");
         return;
       }
 
@@ -253,194 +225,148 @@ export function AuthSignupForm() {
         return;
       }
 
-      setSubmitMessage("Account created. Check your email to verify and continue.");
+      setSubmitMessage("Account created. Check your email to continue.");
     } catch (error) {
-      setSubmitMessage(error instanceof Error ? error.message : "Signup flow could not be started.");
+      setSubmitMessage(formatSignupError(error, "Signup could not be started."));
     }
   });
 
   return (
-    <div className="rounded-[32px] border border-sapphire/10 bg-cloud p-5 shadow-card sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-azure">Signup flow</p>
-          <h2 className="mt-2 text-2xl font-semibold text-ink">Patient-first onboarding</h2>
-        </div>
-        <div className="rounded-full bg-cloud px-3 py-2 text-xs font-medium text-slate-600">
-          Step {currentStep + 1} of {steps.length}
-        </div>
-      </div>
+    <div className="rounded-[36px] bg-[#d2d2d2] px-8 pb-8 pt-7 shadow-[inset_-30px_-23px_87px_rgba(0,0,0,0.21),inset_40px_39px_109.3px_rgba(255,255,255,0.71)] sm:px-[68px] sm:pb-[48px] sm:pt-[42px]">
+      <h1 className="text-[31px] font-semibold leading-none tracking-[-0.03em] text-[#7779fc]">
+        Create Account
+      </h1>
+      <p className="mt-1 text-[13px] text-[#6f6f6f]">Provider signup</p>
 
-      <div className="mt-5 flex gap-2">
+      <div className="mt-6 grid grid-cols-4 gap-2">
         {steps.map((step, index) => (
-          <div key={step} className="flex-1">
-            <div
-              className={cn("h-2 rounded-full", index <= currentStep ? "bg-sapphire" : "bg-skywash/40")}
+          <button
+            key={step}
+            type="button"
+            onClick={() => setCurrentStep(index)}
+            className="text-left"
+            aria-label={`Go to ${step} step`}
+          >
+            <span
+              className={`block h-2 rounded-full ${
+                index <= currentStep ? "bg-[#aaa6ff]" : "bg-[#efefeb]"
+              }`}
             />
-            <p className="mt-2 text-xs text-slate-500">{step}</p>
-          </div>
+            <span className="mt-1 block text-[10px] font-medium text-[#6f6f6f]">{step}</span>
+          </button>
         ))}
       </div>
 
-      <form className="mt-6 space-y-6" onSubmit={onSubmit}>
+      <form className="mt-6" onSubmit={onSubmit}>
         {currentStep === 0 ? (
-          <div className="grid gap-3">
-            {roleChoices.map((choice) => (
-              <button
-                key={choice.value}
-                type="button"
-                onClick={() => form.setValue("actorType", choice.value)}
-                className={cn(
-                  "rounded-[24px] border p-4 text-left transition",
-                  actorType === choice.value
-                    ? "border-sapphire bg-skywash/20"
-                    : "border-sapphire/10 bg-cloud hover:bg-skywash/30",
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-semibold text-ink">{choice.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{choice.text}</p>
-                  </div>
-                  {actorType === choice.value ? <CheckCircle2 className="h-5 w-5 text-sapphire" /> : null}
-                </div>
-              </button>
-            ))}
-          </div>
+          <ChoiceGrid
+            choices={roleChoices}
+            value={actorType}
+            onSelect={(value) => form.setValue("actorType", value)}
+          />
         ) : null}
 
         {currentStep === 1 ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {methodChoices.map((choice) => (
-              <button
-                key={choice.value}
-                type="button"
-                onClick={() => form.setValue("signupMethod", choice.value)}
-                className={cn(
-                  "rounded-[24px] border p-4 text-left transition",
-                  signupMethod === choice.value
-                    ? "border-sapphire bg-skywash/20"
-                    : "border-sapphire/10 bg-cloud hover:bg-skywash/30",
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-semibold text-ink">{choice.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{choice.text}</p>
-                  </div>
-                  {signupMethod === choice.value ? <CheckCircle2 className="h-5 w-5 text-sapphire" /> : null}
-                </div>
-              </button>
-            ))}
-          </div>
+          <ChoiceGrid
+            choices={methodChoices}
+            value={signupMethod}
+            onSelect={(value) => form.setValue("signupMethod", value)}
+          />
         ) : null}
 
         {currentStep === 2 ? (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-medium text-slate-700 sm:col-span-2">
-              Full name
-              <input
-                className="mt-2 w-full rounded-2xl border border-sapphire/10 bg-white/70 px-4 py-3 outline-none"
-                placeholder="Enter your full name"
-                {...form.register("fullName")}
-              />
-              <FieldError message={form.formState.errors.fullName?.message} />
-            </label>
-
-            <label className="text-sm font-medium text-slate-700">
-              Email
-              <input
-                className="mt-2 w-full rounded-2xl border border-sapphire/10 bg-white/70 px-4 py-3 outline-none"
-                placeholder="name@example.com"
-                {...form.register("email")}
-              />
-              <FieldError message={form.formState.errors.email?.message} />
-            </label>
-
+          <div className="grid gap-4">
+            <Field
+              label="Full name"
+              value={form.watch("fullName")}
+              onChange={(value) => form.setValue("fullName", value)}
+              error={form.formState.errors.fullName?.message}
+            />
+            <Field
+              label="Email"
+              value={form.watch("email") ?? ""}
+              onChange={(value) => form.setValue("email", value)}
+              error={form.formState.errors.email?.message}
+            />
             {signupMethod === "email_password" ? (
-              <label className="text-sm font-medium text-slate-700">
-                Password
-                <div className="relative mt-2">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="w-full rounded-2xl border border-sapphire/10 bg-white/70 px-4 py-3 pr-10 outline-none"
-                    placeholder="At least 8 characters"
-                    {...form.register("password")}
-                  />
+              <Field
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                value={form.watch("password") ?? ""}
+                onChange={(value) => form.setValue("password", value)}
+                error={form.formState.errors.password?.message}
+                trailing={
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
                     onClick={() => setShowPassword((value) => !value)}
+                    className="absolute right-3 top-[34px] text-[#707070]"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
-                </div>
-                <FieldError message={form.formState.errors.password?.message} />
-              </label>
-            ) : (
-              <div className="rounded-[24px] bg-skywash/30 p-4 text-sm leading-6 text-slate-600">
-                {signupMethod === "google"
-                  ? "Google sign-up will continue in a secure popup/redirect flow."
-                  : "Magic link sign-up sends a secure email sign-in link."}
-              </div>
-            )}
-
-            {!isPatient ? (
-              <label className="text-sm font-medium text-slate-700 sm:col-span-2">
-                Organization name
-                <input
-                  className="mt-2 w-full rounded-2xl border border-sapphire/10 bg-white/70 px-4 py-3 outline-none"
-                  placeholder="Healthcare organization name"
-                  {...form.register("organizationName")}
-                />
-              </label>
-            ) : (
-              <div className="sm:col-span-2 rounded-[24px] bg-cloud p-4 text-sm leading-6 text-slate-600">
-                Patients do not belong to a tenant by default. They will complete profile setup
-                first, then go to facility discovery and booking.
-              </div>
-            )}
+                }
+              />
+            ) : null}
+            <Field
+              label="Organization"
+              value={form.watch("organizationName") ?? ""}
+              onChange={(value) => form.setValue("organizationName", value)}
+              error={form.formState.errors.organizationName?.message}
+            />
           </div>
         ) : null}
 
         {currentStep === 3 ? (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2">
             {reviewItems.map((item) => (
-              <div key={item.label} className="rounded-[24px] border border-sapphire/10 bg-cloud px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-azure">{item.label}</p>
-                <p className="mt-2 text-sm font-medium text-slate-700">{item.value}</p>
+              <div
+                key={item.label}
+                className="rounded-[14px] bg-[#efefeb]/70 px-4 py-3 text-[12px] text-[#6f6f6f]"
+              >
+                <span className="font-semibold text-[#050608]">{item.label}:</span>{" "}
+                {item.value}
               </div>
             ))}
           </div>
         ) : null}
 
         {submitMessage ? (
-          <div className="rounded-[20px] bg-skywash/20 px-4 py-3 text-sm text-slate-700">
+          <div className="mt-4 rounded-[12px] bg-white/50 px-3 py-2 text-[12px] leading-5 text-[#444]">
             {submitMessage}
           </div>
         ) : null}
 
-        <div className="flex flex-wrap gap-3">
-          <UIButton type="button" variant="secondary" onClick={moveBack} disabled={currentStep === 0}>
-            <ChevronLeft className="mr-2 h-4 w-4" />
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={moveBack}
+            disabled={currentStep === 0}
+            className="flex h-[30px] w-[88px] items-center justify-center rounded-full bg-white text-[11px] font-medium text-[#050608] shadow-[5px_5px_7px_rgba(0,0,0,0.2)] disabled:opacity-40"
+          >
+            <ChevronLeft className="mr-1 h-3.5 w-3.5" />
             Back
-          </UIButton>
+          </button>
 
           {currentStep < steps.length - 1 ? (
-            <>
-              <UIButton type="button" onClick={moveNext}>
-                Next
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </UIButton>
-              <UIButton type="button" variant="ghost" onClick={skipOptional}>
-                Skip
-              </UIButton>
-            </>
+            <button
+              type="button"
+              onClick={moveNext}
+              className="flex h-[30px] w-[110px] items-center justify-center rounded-full bg-[#aaa6ff] text-[11px] font-medium text-[#050608] shadow-[inset_10px_9px_20.6px_rgba(255,255,255,0.32),5px_5px_7px_rgba(0,0,0,0.18)]"
+            >
+              Next
+              <ChevronRight className="ml-1 h-3.5 w-3.5" />
+            </button>
           ) : (
-            <UIButton type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <button
+              type="submit"
+              disabled={form.formState.isSubmitting}
+              className="flex h-[30px] w-[132px] items-center justify-center rounded-full bg-[#aaa6ff] text-[11px] font-medium text-[#050608] shadow-[inset_10px_9px_20.6px_rgba(255,255,255,0.32),5px_5px_7px_rgba(0,0,0,0.18)] disabled:opacity-60"
+            >
+              {form.formState.isSubmitting ? (
+                <LoaderCircle className="mr-1 h-3.5 w-3.5 animate-spin" />
+              ) : null}
               Start signup
-            </UIButton>
+            </button>
           )}
         </div>
       </form>
@@ -448,10 +374,78 @@ export function AuthSignupForm() {
   );
 }
 
-function FieldError({ message }: { message?: string }) {
-  if (!message) {
-    return null;
+function ChoiceGrid<T extends string>({
+  choices,
+  value,
+  onSelect,
+}: {
+  choices: readonly { value: T; label: string }[];
+  value: T;
+  onSelect: (value: T) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      {choices.map((choice) => {
+        const selected = value === choice.value;
+
+        return (
+          <button
+            key={choice.value}
+            type="button"
+            onClick={() => onSelect(choice.value)}
+            className={`flex h-[42px] items-center justify-between rounded-[14px] border-2 px-4 text-[13px] font-medium ${
+              selected
+                ? "border-[#aaa6ff] bg-[#efefeb]"
+                : "border-transparent bg-[#efefeb]/70"
+            }`}
+          >
+            {choice.label}
+            {selected ? <CheckCircle2 className="h-4 w-4 text-[#7779fc]" /> : null}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  error,
+  trailing,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  error?: string;
+  trailing?: ReactNode;
+}) {
+  return (
+    <label className="relative block text-[12px] font-medium text-[#707070]">
+      {label}
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`mt-2 h-[39px] w-full rounded-[10px] border-2 border-[#aaa6ff] bg-[#efefeb] px-3 text-[14px] text-[#050608] outline-none transition-shadow focus:shadow-[0_0_0_3px_rgba(170,166,255,0.22)] ${
+          trailing ? "pr-10" : ""
+        }`}
+      />
+      {trailing}
+      {error ? <span className="mt-1 block text-[11px] text-rose-600">{error}</span> : null}
+    </label>
+  );
+}
+
+function formatSignupError(error: unknown, fallback: string) {
+  const message = error instanceof Error ? error.message : fallback;
+
+  if (message.includes("exceed_cached_egress_quota")) {
+    return "Signup is blocked because the Supabase project exceeded its cached egress quota. The project owner must upgrade the plan or remove spend caps.";
   }
 
-  return <p className="mt-2 text-xs text-rose-600">{message}</p>;
+  return message;
 }

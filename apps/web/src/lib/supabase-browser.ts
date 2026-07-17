@@ -11,6 +11,9 @@ export interface PendingSignup {
   signupMethod: "email_password" | "google" | "magic_link";
   onboardingSessionId?: string;
   nextPath: string;
+  age?: number;
+  bloodGroup?: string;
+  location?: string;
 }
 
 export function getSupabaseBrowserClient() {

@@ -48,6 +48,7 @@ export class AuthService {
       dto.actorType ??
       (user.user_metadata?.actorType as ActorType | undefined) ??
       ActorType.PATIENT;
+    const userMetadata = user.user_metadata ?? {};
 
     const { data, error } = await this.supabaseService.adminClient
       .from("profiles")
@@ -62,6 +63,24 @@ export class AuthService {
           email: user.email ?? null,
           phone: user.phone ?? null,
           account_type: actorType,
+          age:
+            dto.age ??
+            (typeof userMetadata.age === "number" ? userMetadata.age : null),
+          blood_group:
+            dto.bloodGroup ??
+            (typeof userMetadata.bloodGroup === "string"
+              ? userMetadata.bloodGroup
+              : null),
+          location:
+            dto.location ??
+            (typeof userMetadata.location === "string"
+              ? userMetadata.location
+              : null),
+          preferred_city:
+            dto.location ??
+            (typeof userMetadata.location === "string"
+              ? userMetadata.location
+              : null),
           onboarding_step: actorType === ActorType.PATIENT ? 2 : 1,
           status: "active",
         },
@@ -96,6 +115,9 @@ export class AuthService {
         full_name: dto.fullName ?? null,
         phone: dto.phone ?? null,
         preferred_city: dto.preferredCity ?? null,
+        age: dto.age ?? null,
+        blood_group: dto.bloodGroup ?? null,
+        location: dto.location ?? dto.preferredCity ?? null,
         emergency_contact_name: dto.emergencyContactName ?? null,
         emergency_contact_phone: dto.emergencyContactPhone ?? null,
         onboarding_step: 3,

@@ -1,0 +1,4 @@
+:HL["/_next/static/chunks/2mh03a1r7sl0a.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap","style"]
+:HL["https://res.cloudinary.com/dc3qprub3/image/upload/f_auto,q_auto,w_160/v1784277032/1_i9ichu.png","image"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"provider-signup","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"nkgpp_8CXc-aJYfBQ5_mv"}
