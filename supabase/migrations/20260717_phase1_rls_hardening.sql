@@ -9,6 +9,7 @@ as $$
     and tenant_id is not null
     and role in (
       'tenant_admin',
+      'facility_operator',
       'pharmacy_admin',
       'ambulance_admin',
       'blood_bank_admin'

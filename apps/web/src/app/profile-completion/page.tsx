@@ -6,13 +6,16 @@ import { ArrowRight, HeartPulse, MapPin, Phone, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { AuthGuard } from "@/components/guards/auth-guard";
+import { PatientShell } from "@/components/patient-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiRequest } from "@/lib/api";
 
 export default function ProfileCompletionPage() {
   return (
     <AuthGuard allowedActors={["patient"]}>
-      <ProfileCompletionScreen />
+      <PatientShell>
+        <ProfileCompletionScreen />
+      </PatientShell>
     </AuthGuard>
   );
 }
@@ -69,8 +72,7 @@ function ProfileCompletionScreen() {
   };
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl">
         <div className="neu-card p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white">
@@ -173,7 +175,7 @@ function ProfileCompletionScreen() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-heading transition hover:bg-[#c99e79] disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#0046CC] disabled:opacity-60"
               >
                 Save and continue
                 <ArrowRight className="h-4 w-4" />
@@ -187,7 +189,6 @@ function ProfileCompletionScreen() {
             </div>
           </form>
         </div>
-      </div>
-    </main>
+    </div>
   );
 }

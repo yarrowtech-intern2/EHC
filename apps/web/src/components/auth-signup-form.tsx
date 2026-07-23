@@ -447,5 +447,9 @@ function formatSignupError(error: unknown, fallback: string) {
     return "Signup is blocked because the Supabase project exceeded its cached egress quota. The project owner must upgrade the plan or remove spend caps.";
   }
 
+  if (message.toLowerCase().includes("invalid api key")) {
+    return "Supabase API key is invalid or stale. Restart the API and web dev servers after changing .env, then confirm the anon and service role keys belong to the same Supabase project URL.";
+  }
+
   return message;
 }

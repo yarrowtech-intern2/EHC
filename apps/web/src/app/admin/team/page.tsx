@@ -35,7 +35,7 @@ type Member = {
 };
 
 export default function AdminTeamPage() {
-  const { session } = useAuth();
+  const { actorType, session } = useAuth();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
@@ -48,6 +48,7 @@ export default function AdminTeamPage() {
     email: "",
     role: "doctor",
   });
+  const canAssignRoles = actorType === "tenant_admin";
 
   useEffect(() => {
     if (!session?.access_token) {
@@ -81,6 +82,17 @@ export default function AdminTeamPage() {
     () => facilities.filter((facility) => facility.tenant_id === form.tenantId),
     [facilities, form.tenantId],
   );
+  const visibleMembers = useMemo(() => {
+    if (
+      actorType === "pharmacy_admin" ||
+      actorType === "ambulance_admin" ||
+      actorType === "blood_bank_admin"
+    ) {
+      return members.filter((member) => member.role === actorType);
+    }
+
+    return members;
+  }, [actorType, members]);
 
   useEffect(() => {
     if (!form.tenantId) {
@@ -187,91 +199,102 @@ export default function AdminTeamPage() {
                 <ShieldPlus className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-brand">Assign role</p>
-                <h2 className="text-xl font-semibold text-heading">Map staff to a tenant or facility</h2>
+                <p className="text-xs uppercase tracking-[0.18em] text-brand">
+                  {canAssignRoles ? "Assign role" : "Roster scope"}
+                </p>
+                <h2 className="text-xl font-semibold text-heading">
+                  {canAssignRoles ? "Map staff to a tenant or facility" : "Role-specific team access"}
+                </h2>
               </div>
             </div>
 
-            <form className="mt-6 grid gap-4" onSubmit={submit}>
-              <label className="text-sm font-medium text-heading">
-                Tenant
-                <select
-                  value={form.tenantId}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      tenantId: event.target.value,
-                      facilityId: "",
-                    }))
-                  }
-                  className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
-                >
-                  {tenants.map((tenant) => (
-                    <option key={tenant.id} value={tenant.id}>
-                      {tenant.display_name} ({tenant.category})
-                    </option>
-                  ))}
-                </select>
-              </label>
+            {canAssignRoles ? (
+              <form className="mt-6 grid gap-4" onSubmit={submit}>
+                <label className="text-sm font-medium text-heading">
+                  Tenant
+                  <select
+                    value={form.tenantId}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        tenantId: event.target.value,
+                        facilityId: "",
+                      }))
+                    }
+                    className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
+                  >
+                    {tenants.map((tenant) => (
+                      <option key={tenant.id} value={tenant.id}>
+                        {tenant.display_name} ({tenant.category})
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              <label className="text-sm font-medium text-heading">
-                Facility
-                <select
-                  value={form.facilityId}
-                  onChange={(event) =>
-                    setForm((current) => ({ ...current, facilityId: event.target.value }))
-                  }
-                  className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
-                >
-                  <option value="">Tenant-wide role</option>
-                  {visibleFacilities.map((facility) => (
-                    <option key={facility.id} value={facility.id}>
-                      {facility.name} ({facility.type})
-                    </option>
-                  ))}
-                </select>
-              </label>
+                <label className="text-sm font-medium text-heading">
+                  Facility
+                  <select
+                    value={form.facilityId}
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, facilityId: event.target.value }))
+                    }
+                    className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
+                  >
+                    <option value="">Tenant-wide role</option>
+                    {visibleFacilities.map((facility) => (
+                      <option key={facility.id} value={facility.id}>
+                        {facility.name} ({facility.type})
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              <label className="text-sm font-medium text-heading">
-                Staff email
-                <input
-                  value={form.email}
-                  onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                  placeholder="doctor@ehc.example"
-                  className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
-                />
-              </label>
+                <label className="text-sm font-medium text-heading">
+                  Staff email
+                  <input
+                    value={form.email}
+                    onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                    placeholder="doctor@ehc.example"
+                    className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
+                  />
+                </label>
 
-              <label className="text-sm font-medium text-heading">
-                Role
-                <select
-                  value={form.role}
-                  onChange={(event) => setForm((current) => ({ ...current, role: event.target.value }))}
-                  className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
-                >
-                  {roles.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                <label className="text-sm font-medium text-heading">
+                  Role
+                  <select
+                    value={form.role}
+                    onChange={(event) => setForm((current) => ({ ...current, role: event.target.value }))}
+                    className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
+                  >
+                    {roles.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              {message ? (
-                <div className="rounded-2xl bg-skywash/30 px-4 py-3 text-sm text-heading">
-                  {message}
+                {message ? (
+                  <div className="rounded-2xl bg-skywash/30 px-4 py-3 text-sm text-heading">
+                    {message}
+                  </div>
+                ) : null}
+
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-white"
+                  >
+                    Assign member role
+                  </button>
                 </div>
-              ) : null}
-
-              <div className="flex flex-wrap gap-3 pt-2">
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-heading transition hover:bg-[#c99e79]"
-                >
-                  Assign member role
-                </button>
+              </form>
+            ) : (
+              <div className="mt-6 rounded-2xl bg-[#f8f7f4] px-4 py-4 text-sm leading-6 text-body">
+                Your role can review the roster for its own service scope. Role assignment is limited
+                to tenant admins in the current backend access rules.
               </div>
-            </form>
+            )}
           </section>
 
           <section className="rounded-3xl bg-white/70 p-6 shadow-card">
@@ -292,13 +315,13 @@ export default function AdminTeamPage() {
                 </div>
               ) : null}
 
-              {!loadingMembers && members.length === 0 ? (
+              {!loadingMembers && visibleMembers.length === 0 ? (
                 <div className="rounded-2xl bg-skywash/25 px-4 py-4 text-sm text-body">
                   No member roles assigned yet for this selection.
                 </div>
               ) : null}
 
-              {members.map((member) => (
+              {visibleMembers.map((member) => (
                 <article key={member.id} className="rounded-2xl border border-border bg-white/80 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>

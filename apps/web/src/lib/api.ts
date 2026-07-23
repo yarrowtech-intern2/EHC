@@ -24,7 +24,22 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || "Request failed");
+    let message = errorText || "Request failed";
+
+    try {
+      const parsed = JSON.parse(errorText) as { message?: unknown; error?: unknown };
+      if (typeof parsed.message === "string") {
+        message = parsed.message;
+      } else if (Array.isArray(parsed.message)) {
+        message = parsed.message.join(" ");
+      } else if (typeof parsed.error === "string") {
+        message = parsed.error;
+      }
+    } catch {
+      // Non-JSON error bodies are already usable as-is.
+    }
+
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;

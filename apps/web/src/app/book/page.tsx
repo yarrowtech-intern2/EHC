@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Building2,
   CalendarDays,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { AuthGuard } from "@/components/guards/auth-guard";
+import { PatientShell } from "@/components/patient-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiRequest } from "@/lib/api";
 
@@ -43,13 +44,16 @@ type AppointmentSlot = {
 export default function BookPage() {
   return (
     <AuthGuard allowedActors={["patient"]}>
-      <BookScreen />
+      <PatientShell>
+        <BookScreen />
+      </PatientShell>
     </AuthGuard>
   );
 }
 
 function BookScreen() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { session } = useAuth();
   const [facility, setFacility] = useState<FacilityDetail | null>(null);
   const [slots, setSlots] = useState<AppointmentSlot[]>([]);
@@ -62,13 +66,7 @@ function BookScreen() {
     notes: "",
   });
 
-  const facilityId = useMemo(() => {
-    if (typeof window === "undefined") {
-      return "";
-    }
-
-    return new URLSearchParams(window.location.search).get("facilityId") ?? "";
-  }, []);
+  const facilityId = searchParams.get("facilityId") ?? "";
 
   useEffect(() => {
     if (!facilityId) {
@@ -138,37 +136,40 @@ function BookScreen() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-4">
+      <div className="flex min-h-[420px] items-center justify-center px-4">
         <div className="rounded-full bg-white/70 px-5 py-3 text-sm text-body shadow-card">
           Loading facility...
         </div>
-      </main>
+      </div>
     );
   }
 
   if (!facility) {
+    const missingFacilityId = !facilityId;
+
     return (
-      <main className="min-h-screen px-4 py-8">
-        <div className="mx-auto max-w-3xl rounded-3xl bg-white/70 p-6 shadow-card">
-          <h1 className="text-2xl font-bold text-heading">Facility not found</h1>
+      <div className="mx-auto max-w-3xl rounded-3xl bg-white/70 p-6 shadow-card">
+          <h1 className="text-2xl font-bold text-heading">
+            {missingFacilityId ? "Select a service first" : "Facility not found"}
+          </h1>
           <p className="mt-3 text-sm leading-6 text-body">
-            This booking link is incomplete or the facility does not exist anymore.
+            {missingFacilityId
+              ? "Choose a clinic, pharmacy, or service from patient home before booking."
+              : "This booking link is incomplete or the facility does not exist anymore."}
           </p>
           <Link
             href="/discover"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-ambercare px-4 py-2 text-sm font-semibold text-heading"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-ambercare px-4 py-2 text-sm font-semibold text-white"
           >
             Back to discovery
             <ChevronRight className="h-4 w-4" />
           </Link>
-        </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl">
         <div className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
           <aside className="rounded-3xl bg-white/70 p-6 shadow-card">
             <div className="flex items-center gap-3">
@@ -296,7 +297,7 @@ function BookScreen() {
                 <button
                   type="submit"
                   disabled={submitting || !form.slotId}
-                  className="inline-flex items-center justify-center rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-heading transition hover:bg-[#c99e79] disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#0046CC] disabled:opacity-60"
                 >
                   Confirm appointment
                 </button>
@@ -310,7 +311,6 @@ function BookScreen() {
             </form>
           </section>
         </div>
-      </div>
-    </main>
+    </div>
   );
 }

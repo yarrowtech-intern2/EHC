@@ -38,6 +38,7 @@ export class AuditLogsService {
 
   private readonly auditReaderRoles = [
     "tenant_admin",
+    "facility_operator",
     "pharmacy_admin",
     "ambulance_admin",
     "blood_bank_admin",

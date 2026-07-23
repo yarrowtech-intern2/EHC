@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { AuthGuard } from "@/components/guards/auth-guard";
+import { DashboardShell } from "@/components/dashboard-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiRequest } from "@/lib/api";
 
@@ -59,7 +60,9 @@ const defaultForm: ConsultationForm = {
 export default function DoctorPage() {
   return (
     <AuthGuard allowedActors={["doctor", "facility_operator", "tenant_admin"]}>
-      <DoctorWorkspace />
+      <DashboardShell>
+        <DoctorWorkspace />
+      </DashboardShell>
     </AuthGuard>
   );
 }
@@ -151,8 +154,7 @@ function DoctorWorkspace() {
   };
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-brand">Doctor workspace</p>
@@ -334,7 +336,7 @@ function DoctorWorkspace() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="inline-flex items-center justify-center rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-heading transition hover:bg-[#c99e79] disabled:opacity-60"
+                    className="inline-flex items-center justify-center rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#0046CC] disabled:opacity-60"
                   >
                     Save consultation
                   </button>
@@ -343,8 +345,7 @@ function DoctorWorkspace() {
             )}
           </section>
         </div>
-      </div>
-    </main>
+    </div>
   );
 }
 

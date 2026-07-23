@@ -15,7 +15,7 @@ import { Footer } from "@/components/landing/Footer";
 
 export default function Landing3Page() {
   return (
-    <>
+    <div className="min-h-screen bg-[#f3f1ef]">
       <Navbar />
       <main>
         <HeroSection />
@@ -32,6 +32,6 @@ export default function Landing3Page() {
         <FinalCTA />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

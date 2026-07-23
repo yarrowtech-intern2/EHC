@@ -26,6 +26,7 @@ export class UsersService {
     return [
       "super_admin",
       "tenant_admin",
+      "facility_operator",
       "doctor",
       "patient",
       "pharmacy_admin",
@@ -50,18 +51,20 @@ export class UsersService {
 
     if (tenantId) {
       await assertTenantAccess(this.supabaseService, user.id, tenantId, [
-        "tenant_admin",
-        "pharmacy_admin",
-        "ambulance_admin",
+      "tenant_admin",
+      "facility_operator",
+      "pharmacy_admin",
+      "ambulance_admin",
         "blood_bank_admin",
       ]);
     }
 
     if (facilityId) {
       await assertFacilityAccess(this.supabaseService, user.id, facilityId, [
-        "tenant_admin",
-        "pharmacy_admin",
-        "ambulance_admin",
+      "tenant_admin",
+      "facility_operator",
+      "pharmacy_admin",
+      "ambulance_admin",
         "blood_bank_admin",
       ]);
     }

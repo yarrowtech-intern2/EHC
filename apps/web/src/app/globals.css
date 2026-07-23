@@ -13,7 +13,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #efefeb;
+  background-color: #f8f7f4;
   color: #10233f;
   font-family: "Onest", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -52,7 +52,7 @@ html {
 
 /* Neumorphic card utility */
 .neu-card {
-  background: #efefeb;
+  background: #f8f7f4;
   border-radius: 24px;
   box-shadow: 10px 10px 24px rgba(150, 167, 183, 0.16),
     -10px -10px 24px rgba(255, 255, 255, 0.9);
@@ -64,7 +64,7 @@ html {
 }
 
 .neu-btn {
-  background: #efefeb;
+  background: #f8f7f4;
   border-radius: 14px;
   box-shadow: 6px 6px 14px rgba(150, 167, 183, 0.16),
     -6px -6px 14px rgba(255, 255, 255, 0.92);
@@ -137,24 +137,24 @@ html {
 }
 
 .cta-button-primary {
-  background: linear-gradient(180deg, #dbb28f 0%, #d4a17a 100%);
-  color: #10233f;
+  background: #aaa6ff;
+  color: #ffffff;
   box-shadow:
-    0 14px 30px rgba(164, 118, 84, 0.22),
+    0 14px 30px rgba(170, 166, 255, 0.28),
     0 4px 10px rgba(16, 35, 63, 0.08);
 }
 
 .cta-button-primary:hover {
-  background: linear-gradient(180deg, #e0ba99 0%, #cf9a73 100%);
+  background: #aaa6ff;
   box-shadow:
-    0 18px 36px rgba(164, 118, 84, 0.28),
+    0 18px 36px rgba(170, 166, 255, 0.34),
     0 6px 14px rgba(16, 35, 63, 0.1);
 }
 
 .cta-button-secondary {
   background: rgba(255, 255, 255, 0.76);
-  color: #194898;
-  border: 1px solid rgba(25, 72, 152, 0.18);
+  color: #aaa6ff;
+  border: 1px solid rgba(170, 166, 255, 0.36);
   box-shadow:
     0 10px 24px rgba(125, 148, 171, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.48);
@@ -162,7 +162,7 @@ html {
 
 .cta-button-secondary:hover {
   background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(25, 72, 152, 0.24);
+  border-color: rgba(170, 166, 255, 0.48);
   box-shadow:
     0 14px 28px rgba(125, 148, 171, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.58);
@@ -170,11 +170,85 @@ html {
 
 .cta-button-ghost {
   background: transparent;
-  color: #194898;
+  color: #aaa6ff;
 }
 
 .cta-button-ghost:hover {
-  background: rgba(80, 132, 217, 0.08);
+  background: rgba(170, 166, 255, 0.12);
+}
+
+/* Authenticated app accent scope. Landing/home keep the global palette. */
+:where(.ehc-dashboard-shell, .ehc-patient-shell) {
+  --dashboard-sapphire: #0057ff;
+  --dashboard-sapphire-dark: #0046cc;
+  --dashboard-sapphire-soft: rgba(0, 87, 255, 0.1);
+  --dashboard-sapphire-muted: rgba(0, 87, 255, 0.18);
+  --dashboard-sapphire-border: rgba(0, 87, 255, 0.22);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .text-brand,
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .text-sapphire {
+  color: var(--dashboard-sapphire);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .bg-brand,
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .bg-sapphire,
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .bg-ambercare {
+  background-color: var(--dashboard-sapphire);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .bg-brand\/10 {
+  background-color: var(--dashboard-sapphire-soft);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .bg-ambercare\/30 {
+  background-color: var(--dashboard-sapphire-muted);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .border-brand,
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .focus\:border-brand:focus {
+  border-color: var(--dashboard-sapphire);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .border-brand\/20,
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .border-sapphire\/10 {
+  border-color: var(--dashboard-sapphire-border);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .ring-sapphire\/10 {
+  --tw-ring-color: var(--dashboard-sapphire-soft);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .cta-button-primary {
+  background: var(--dashboard-sapphire);
+  color: #ffffff;
+  box-shadow:
+    0 14px 30px rgba(0, 87, 255, 0.24),
+    0 4px 10px rgba(16, 35, 63, 0.08);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .cta-button-primary:hover {
+  background: var(--dashboard-sapphire-dark);
+  box-shadow:
+    0 18px 36px rgba(0, 87, 255, 0.3),
+    0 6px 14px rgba(16, 35, 63, 0.1);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .cta-button-secondary {
+  color: var(--dashboard-sapphire-dark);
+  border-color: var(--dashboard-sapphire-border);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .cta-button-secondary:hover {
+  border-color: rgba(0, 87, 255, 0.34);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .cta-button-ghost {
+  color: var(--dashboard-sapphire-dark);
+}
+
+:where(.ehc-dashboard-shell, .ehc-patient-shell) .cta-button-ghost:hover {
+  background: var(--dashboard-sapphire-soft);
 }
 
 /* Emergency pulse */
@@ -197,7 +271,7 @@ html {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #efefeb;
+  background: #f8f7f4;
 }
 ::-webkit-scrollbar-thumb {
   background: #d6dcd9;

@@ -1,4 +1,5 @@
 import { AuthGuard } from "@/components/guards/auth-guard";
+import { DashboardShell } from "@/components/dashboard-shell";
 
 export default function AdminLayout({
   children,
@@ -6,8 +7,17 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthGuard allowedActors={["tenant_admin", "facility_operator"]}>
-      {children}
+    <AuthGuard
+      allowedActors={[
+        "super_admin",
+        "tenant_admin",
+        "facility_operator",
+        "pharmacy_admin",
+        "ambulance_admin",
+        "blood_bank_admin",
+      ]}
+    >
+      <DashboardShell>{children}</DashboardShell>
     </AuthGuard>
   );
 }

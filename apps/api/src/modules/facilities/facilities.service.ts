@@ -14,6 +14,14 @@ import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
 import { CreateFacilityDto } from "./dto/create-facility.dto";
 
+type FacilityListItem = {
+  id: string;
+  tenant_id: string;
+  name: string;
+  type: string;
+  city: string | null;
+};
+
 @Injectable()
 export class FacilitiesService {
   constructor(
@@ -49,21 +57,62 @@ export class FacilitiesService {
     const user = await getUserFromAuthorization(this.supabaseService, authorization);
     const tenantIds = await getAccessibleTenantIds(this.supabaseService, user.id);
 
-    if (tenantIds.length === 0) {
+    const { data: profile, error: profileError } = await this.supabaseService.adminClient
+      .from("profiles")
+      .select("tenant_id, facility_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      throw new InternalServerErrorException(profileError.message);
+    }
+
+    const scopedTenantIds = Array.from(
+      new Set([
+        ...tenantIds,
+        ...(profile?.tenant_id ? [profile.tenant_id] : []),
+      ]),
+    );
+
+    if (scopedTenantIds.length === 0 && !profile?.facility_id) {
       return [];
     }
 
-    const { data, error } = await this.supabaseService.adminClient
-      .from("facilities")
-      .select("id, tenant_id, name, type, city")
-      .in("tenant_id", tenantIds)
-      .order("created_at", { ascending: false });
+    const scopedFacilities = scopedTenantIds.length
+      ? await this.supabaseService.adminClient
+          .from("facilities")
+          .select("id, tenant_id, name, type, city")
+          .in("tenant_id", scopedTenantIds)
+          .order("created_at", { ascending: false })
+      : { data: [], error: null };
 
-    if (error) {
-      throw new InternalServerErrorException(error.message);
+    if (scopedFacilities.error) {
+      throw new InternalServerErrorException(scopedFacilities.error.message);
     }
 
-    return data;
+    const profileFacility = profile?.facility_id
+      ? await this.supabaseService.adminClient
+          .from("facilities")
+          .select("id, tenant_id, name, type, city")
+          .eq("id", profile.facility_id)
+          .maybeSingle()
+      : { data: null, error: null };
+
+    if (profileFacility.error) {
+      throw new InternalServerErrorException(profileFacility.error.message);
+    }
+
+    const byId = new Map<string, FacilityListItem>();
+
+    for (const facility of scopedFacilities.data ?? []) {
+      byId.set(facility.id, facility);
+    }
+
+    if (profileFacility.data) {
+      byId.set(profileFacility.data.id, profileFacility.data);
+    }
+
+    return Array.from(byId.values());
   }
 
   async getPublicFacilityById(id: string) {

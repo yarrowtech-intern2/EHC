@@ -15,7 +15,7 @@ import { FinalCTA } from "@/components/landing2/sections/FinalCTA";
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="min-h-screen bg-[#f3f1ef]">
       <Navbar />
       <main>
         <HeroSection />
@@ -32,6 +32,6 @@ export default function LandingPage() {
         <FinalCTA />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

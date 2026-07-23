@@ -9,6 +9,7 @@ import { SupabaseService } from "../config/supabase.service";
 export type AppRole =
   | "super_admin"
   | "tenant_admin"
+  | "facility_operator"
   | "doctor"
   | "patient"
   | "pharmacy_admin"
@@ -90,7 +91,24 @@ export async function assertTenantAccess(
   }
 
   if (!data.length) {
-    throw new UnauthorizedException("You do not have access to this tenant.");
+    const { data: profile, error: profileError } = await supabaseService.adminClient
+      .from("profiles")
+      .select("tenant_id, account_type")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      throw new InternalServerErrorException(profileError.message);
+    }
+
+    const profileRole = profile?.account_type as AppRole | null | undefined;
+    const profileHasAccess =
+      profile?.tenant_id === tenantId &&
+      (!allowedRoles?.length || Boolean(profileRole && allowedRoles.includes(profileRole)));
+
+    if (!profileHasAccess) {
+      throw new UnauthorizedException("You do not have access to this tenant.");
+    }
   }
 }
 
@@ -110,12 +128,48 @@ export async function assertFacilityAccess(
     throw new InternalServerErrorException(error.message);
   }
 
-  await assertTenantAccess(
-    supabaseService,
-    userId,
-    facility.tenant_id,
-    allowedRoles,
+  let roleQuery = supabaseService.adminClient
+    .from("user_roles")
+    .select("id, facility_id, role")
+    .eq("user_id", userId)
+    .eq("tenant_id", facility.tenant_id);
+
+  if (allowedRoles?.length) {
+    roleQuery = roleQuery.in("role", allowedRoles);
+  }
+
+  const { data: roles, error: rolesError } = await roleQuery;
+
+  if (rolesError) {
+    throw new InternalServerErrorException(rolesError.message);
+  }
+
+  const roleHasAccess = roles.some(
+    (role) => role.facility_id === null || role.facility_id === facilityId,
   );
+
+  if (!roleHasAccess) {
+    const { data: profile, error: profileError } = await supabaseService.adminClient
+      .from("profiles")
+      .select("tenant_id, facility_id, account_type")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      throw new InternalServerErrorException(profileError.message);
+    }
+
+    const profileRole = profile?.account_type as AppRole | null | undefined;
+    const profileHasAccess =
+      Boolean(profile) &&
+      profile?.tenant_id === facility.tenant_id &&
+      (profile?.facility_id === null || profile?.facility_id === facilityId) &&
+      (!allowedRoles?.length || Boolean(profileRole && allowedRoles.includes(profileRole)));
+
+    if (!profileHasAccess) {
+      throw new UnauthorizedException("You do not have access to this facility.");
+    }
+  }
 
   return facility;
 }

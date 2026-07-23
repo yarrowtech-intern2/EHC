@@ -4,7 +4,53 @@ import { createClient, type Session, type SupabaseClient, type User } from "@sup
 
 let supabaseClient: SupabaseClient | null = null;
 
-export type AppActorType = "patient" | "tenant_admin" | "facility_operator" | "doctor";
+export type AppActorType =
+  | "super_admin"
+  | "tenant_admin"
+  | "facility_operator"
+  | "doctor"
+  | "patient"
+  | "pharmacy_admin"
+  | "ambulance_admin"
+  | "blood_bank_admin";
+
+export type FacilityType =
+  | "hospital"
+  | "clinic"
+  | "pharmacy"
+  | "lab"
+  | "ambulance_unit"
+  | "independent_vendor";
+
+export type SessionRole = {
+  id: string;
+  role: AppActorType;
+  tenant_id: string | null;
+  facility_id: string | null;
+  tenant_name: string | null;
+  facility_name: string | null;
+  facility_type: FacilityType | null;
+  facility_city: string | null;
+};
+
+export type SessionContext = {
+  profile: {
+    id: string;
+    tenant_id: string | null;
+    facility_id: string | null;
+    full_name: string | null;
+    email: string | null;
+    phone: string | null;
+    account_type?: string | null;
+    age?: number | null;
+    blood_group?: string | null;
+    location?: string | null;
+    preferred_city?: string | null;
+    emergency_contact_name?: string | null;
+    emergency_contact_phone?: string | null;
+  } | null;
+  roles: SessionRole[];
+};
 
 export interface PendingSignup {
   actorType: AppActorType;
@@ -43,10 +89,14 @@ export function getActorType(user: User | null | undefined): AppActorType | null
   const value = user?.user_metadata?.actorType;
 
   if (
+    value === "super_admin" ||
     value === "patient" ||
     value === "tenant_admin" ||
     value === "facility_operator" ||
-    value === "doctor"
+    value === "doctor" ||
+    value === "pharmacy_admin" ||
+    value === "ambulance_admin" ||
+    value === "blood_bank_admin"
   ) {
     return value;
   }
@@ -106,6 +156,54 @@ export function getAuthRedirectPath(
   }
 
   return "/admin";
+}
+
+export function getDashboardPath(actorType: AppActorType | null | undefined) {
+  if (actorType === "patient") {
+    return "/discover";
+  }
+
+  if (actorType === "doctor") {
+    return "/doctor";
+  }
+
+  if (
+    actorType === "super_admin" ||
+    actorType === "tenant_admin" ||
+    actorType === "facility_operator" ||
+    actorType === "pharmacy_admin" ||
+    actorType === "ambulance_admin" ||
+    actorType === "blood_bank_admin"
+  ) {
+    return "/admin";
+  }
+
+  return "/login";
+}
+
+export function getPrimaryActorType(
+  user: User | null | undefined,
+  sessionContext: SessionContext | null,
+): AppActorType | null {
+  const rolePriority: AppActorType[] = [
+    "super_admin",
+    "tenant_admin",
+    "doctor",
+    "pharmacy_admin",
+    "ambulance_admin",
+    "blood_bank_admin",
+    "facility_operator",
+    "patient",
+  ];
+  const roles = new Set(sessionContext?.roles.map((item) => item.role) ?? []);
+
+  for (const role of rolePriority) {
+    if (roles.has(role)) {
+      return role;
+    }
+  }
+
+  return getActorType(user);
 }
 
 export function hasActiveSession(session: Session | null) {

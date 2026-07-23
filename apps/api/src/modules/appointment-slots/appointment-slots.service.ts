@@ -43,6 +43,7 @@ export class AppointmentSlotsService {
     const user = await getUserFromAuthorization(this.supabaseService, authorization);
     await assertFacilityAccess(this.supabaseService, user.id, dto.facilityId, [
       "tenant_admin",
+      "facility_operator",
       "doctor",
     ]);
 

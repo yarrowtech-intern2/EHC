@@ -45,6 +45,7 @@ export class AppointmentsService {
     const user = await this.getUserFromAuthorization(authorization);
     await assertFacilityAccess(this.supabaseService, user.id, facilityId, [
       "tenant_admin",
+      "facility_operator",
       "pharmacy_admin",
       "ambulance_admin",
       "blood_bank_admin",
@@ -204,6 +205,7 @@ export class AppointmentsService {
       existingAppointment.facility_id,
       [
         "tenant_admin",
+        "facility_operator",
         "pharmacy_admin",
         "ambulance_admin",
         "blood_bank_admin",

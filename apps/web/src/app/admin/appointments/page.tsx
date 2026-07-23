@@ -211,7 +211,7 @@ export default function AdminAppointmentsPage() {
                     onClick={() => updateStatus(appointment.id, status)}
                     className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] ${
                       appointment.status === status
-                        ? "bg-ambercare text-heading"
+                        ? "bg-ambercare text-white"
                         : "border border-brand/20 bg-white/75 text-heading"
                     }`}
                   >

@@ -134,6 +134,56 @@ export class AuthService {
     return data;
   }
 
+  async getSessionContext(authorization: string | undefined) {
+    const user = await this.getUserFromAuthorization(authorization);
+
+    const { data: profile, error: profileError } = await this.supabaseService.adminClient
+      .from("profiles")
+      .select(
+        "id, tenant_id, facility_id, full_name, email, phone, account_type, age, blood_group, location, preferred_city, emergency_contact_name, emergency_contact_phone",
+      )
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      throw new InternalServerErrorException(profileError.message);
+    }
+
+    const { data: roles, error: rolesError } = await this.supabaseService.adminClient
+      .from("user_roles")
+      .select(
+        "id, role, tenant_id, facility_id, tenants(display_name), facilities(name, type, city)",
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (rolesError) {
+      throw new InternalServerErrorException(rolesError.message);
+    }
+
+    return {
+      profile,
+      roles: roles.map((item) => ({
+        id: item.id,
+        role: item.role,
+        tenant_id: item.tenant_id,
+        facility_id: item.facility_id,
+        tenant_name: Array.isArray(item.tenants)
+          ? item.tenants[0]?.display_name ?? null
+          : (item.tenants as any)?.display_name ?? null,
+        facility_name: Array.isArray(item.facilities)
+          ? item.facilities[0]?.name ?? null
+          : (item.facilities as any)?.name ?? null,
+        facility_type: Array.isArray(item.facilities)
+          ? item.facilities[0]?.type ?? null
+          : (item.facilities as any)?.type ?? null,
+        facility_city: Array.isArray(item.facilities)
+          ? item.facilities[0]?.city ?? null
+          : (item.facilities as any)?.city ?? null,
+      })),
+    };
+  }
+
   private async getUserFromAuthorization(authorization: string | undefined): Promise<User> {
     const token = authorization?.replace(/^Bearer\s+/i, "").trim();
 

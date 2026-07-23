@@ -18,7 +18,7 @@ const imageMap: Record<string, string> = {
 
 export function ServiceStories() {
   return (
-    <section id="services" className="py-20 sm:py-28 bg-soft-bg">
+    <section id="services" className="bg-[#f3f1ef] py-20 sm:py-28">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
         <FadeIn className="text-center mb-20 sm:mb-28">
           <EditorialTitle

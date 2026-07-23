@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CalendarDays, Clock3, MapPin, NotebookText } from "lucide-react";
 
 import { AuthGuard } from "@/components/guards/auth-guard";
+import { PatientShell } from "@/components/patient-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiRequest } from "@/lib/api";
 
@@ -29,7 +30,9 @@ type PatientAppointment = {
 export default function AppointmentsPage() {
   return (
     <AuthGuard allowedActors={["patient"]}>
-      <AppointmentsScreen />
+      <PatientShell>
+        <AppointmentsScreen />
+      </PatientShell>
     </AuthGuard>
   );
 }
@@ -56,8 +59,7 @@ function AppointmentsScreen() {
   }, [session?.access_token]);
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-brand">Patient timeline</p>
@@ -68,7 +70,7 @@ function AppointmentsScreen() {
           </div>
           <Link
             href="/discover"
-            className="rounded-full bg-ambercare px-4 py-2 text-sm font-semibold text-heading"
+            className="rounded-full bg-ambercare px-4 py-2 text-sm font-semibold text-white"
           >
             Book new care
           </Link>
@@ -130,8 +132,6 @@ function AppointmentsScreen() {
             </article>
           ))}
         </div>
-      </div>
-    </main>
+    </div>
   );
 }
-

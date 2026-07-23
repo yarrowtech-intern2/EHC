@@ -3,5 +3,5 @@ export default function Landing2Layout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="font-onest bg-background text-primary-text">{children}</div>;
+  return <div className="min-h-screen bg-[#f3f1ef] font-onest text-primary-text">{children}</div>;
 }

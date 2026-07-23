@@ -9,7 +9,7 @@ const heroDoctorImage =
 
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-screen items-start overflow-hidden bg-background pt-[96px] md:pt-[112px] xl:pt-[230px]">
+    <section className="relative flex min-h-screen items-start overflow-hidden bg-[#f3f1ef] pt-[96px] md:pt-[112px] xl:pt-[230px]">
       <div
         className="absolute left-1/2 top-[50vh] z-0 block w-screen max-w-none -translate-x-1/2 md:hidden"
         aria-hidden="true"

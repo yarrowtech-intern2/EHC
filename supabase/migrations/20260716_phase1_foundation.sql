@@ -12,6 +12,7 @@ create type public.facility_type as enum (
 create type public.app_role as enum (
   'super_admin',
   'tenant_admin',
+  'facility_operator',
   'doctor',
   'patient',
   'pharmacy_admin',
@@ -123,4 +124,3 @@ create policy "tenant members can read audit logs"
 on public.audit_logs
 for select
 using (tenant_id in (select public.current_user_tenant_ids()));
-

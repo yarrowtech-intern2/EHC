@@ -17,7 +17,7 @@ const partners = [
 
 export function PartnerSection() {
   return (
-    <section id="partners" className="py-20 sm:py-28 bg-soft-bg px-5 sm:px-8">
+    <section id="partners" className="bg-[#f3f1ef] py-20 sm:py-28 px-5 sm:px-8">
       <div className="mx-auto max-w-[1200px]">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <FadeIn>

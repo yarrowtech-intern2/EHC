@@ -5,6 +5,9 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Cross } from "lucide-react";
 
+import { useAuth } from "@/components/providers/auth-provider";
+import { getDashboardPath } from "@/lib/supabase-browser";
+
 const links = [
   { label: "Services", href: "#services" },
   { label: "Platform", href: "#platform" },
@@ -16,8 +19,11 @@ const logoImage =
   "https://res.cloudinary.com/dc3qprub3/image/upload/f_auto,q_auto,w_160/v1784277032/1_i9ichu.png";
 
 export function Navbar() {
+  const { actorType, loading, user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const dashboardPath = getDashboardPath(actorType);
+  const signedIn = Boolean(user);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -29,7 +35,7 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#efefeb]/92 backdrop-blur-md"
+          ? "bg-[#f3f1ef]/92 backdrop-blur-md"
           : "bg-transparent"
       }`}
       role="banner"
@@ -63,12 +69,14 @@ export function Navbar() {
         </div>
 
         <div className="ml-5 hidden items-center gap-2 md:flex xl:ml-10 xl:gap-3">
-          <Link
-            href="/login"
-            className="flex h-[22px] items-center bg-[#aaa6ff] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-brand xl:h-9 xl:px-5 xl:text-[14px]"
-          >
-            Sign in
-          </Link>
+          {!loading ? (
+            <Link
+              href={signedIn ? dashboardPath : "/login"}
+              className="flex h-[22px] items-center bg-[#aaa6ff] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-brand xl:h-9 xl:px-5 xl:text-[14px]"
+            >
+              {signedIn ? "Dashboard" : "Sign in"}
+            </Link>
+          ) : null}
           <Link
             href="/emergency-ambulance"
             className="flex h-[22px] w-[22px] items-center justify-center bg-[#ffd5d8] text-emergency transition-colors hover:bg-[#ffc2c6] xl:h-9 xl:w-9"
@@ -97,7 +105,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 top-16 z-40 bg-[#efefeb] md:hidden"
+            className="fixed inset-0 top-16 z-40 bg-[#f3f1ef] md:hidden"
           >
             <div className="flex flex-col p-6 gap-0.5">
               {links.map((link) => (
@@ -112,11 +120,11 @@ export function Navbar() {
               ))}
               <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-3">
                 <Link
-                  href="/login"
+                  href={signedIn ? dashboardPath : "/login"}
                   onClick={() => setMobileOpen(false)}
                   className="bg-[#aaa6ff] py-3 text-center text-[14px] font-medium text-white"
                 >
-                  Sign In
+                  {signedIn ? "Dashboard" : "Sign In"}
                 </Link>
                 <Link
                   href="/register"

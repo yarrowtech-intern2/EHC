@@ -4,8 +4,9 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { getDashboardPath, type AppActorType } from "@/lib/supabase-browser";
 
-type AllowedActor = "patient" | "tenant_admin" | "facility_operator" | "doctor";
+type AllowedActor = AppActorType;
 
 export function AuthGuard({
   children,
@@ -28,8 +29,8 @@ export function AuthGuard({
       return;
     }
 
-    if (allowedActors && actorType && !allowedActors.includes(actorType)) {
-      router.replace(actorType === "patient" ? "/profile-completion" : "/");
+    if (allowedActors && (!actorType || !allowedActors.includes(actorType))) {
+      router.replace(actorType === "patient" ? "/profile-completion" : getDashboardPath(actorType));
     }
   }, [actorType, allowedActors, loading, pathname, router, user]);
 
@@ -47,7 +48,7 @@ export function AuthGuard({
     return null;
   }
 
-  if (allowedActors && actorType && !allowedActors.includes(actorType)) {
+  if (allowedActors && (!actorType || !allowedActors.includes(actorType))) {
     return null;
   }
 

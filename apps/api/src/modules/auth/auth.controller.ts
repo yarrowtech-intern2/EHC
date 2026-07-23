@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, Post } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Post } from "@nestjs/common";
 
 import { AuthService } from "./auth.service";
 import { BeginSignupDto } from "./dto/begin-signup.dto";
@@ -28,5 +28,10 @@ export class AuthController {
     @Body() dto: CompleteProfileDto,
   ) {
     return this.authService.completeProfile(authorization, dto);
+  }
+
+  @Get("session-context")
+  getSessionContext(@Headers("authorization") authorization: string | undefined) {
+    return this.authService.getSessionContext(authorization);
   }
 }

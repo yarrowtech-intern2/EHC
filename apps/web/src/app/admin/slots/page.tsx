@@ -25,6 +25,7 @@ export default function AdminSlotsPage() {
   const { session } = useAuth();
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loadingFacilities, setLoadingFacilities] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -42,6 +43,8 @@ export default function AdminSlotsPage() {
       return;
     }
 
+    setLoadingFacilities(true);
+
     apiRequest<Facility[]>("/facilities/mine", {
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -53,7 +56,11 @@ export default function AdminSlotsPage() {
           setForm((current) => ({ ...current, facilityId: data[0].id }));
         }
       })
-      .catch(() => setFacilities([]));
+      .catch(() => {
+        setFacilities([]);
+        setMessage("Could not load assigned facilities.");
+      })
+      .finally(() => setLoadingFacilities(false));
   }, [session?.access_token]);
 
   useEffect(() => {
@@ -83,6 +90,11 @@ export default function AdminSlotsPage() {
     event.preventDefault();
     if (!session?.access_token) {
       setMessage("Session missing. Please sign in again.");
+      return;
+    }
+
+    if (!form.facilityId) {
+      setMessage("No facility is assigned to this account yet.");
       return;
     }
 
@@ -148,8 +160,13 @@ export default function AdminSlotsPage() {
                 onChange={(event) =>
                   setForm((current) => ({ ...current, facilityId: event.target.value }))
                 }
+                disabled={loadingFacilities || facilities.length === 0}
                 className="mt-2 w-full rounded-[14px] border border-border bg-white/80 px-4 py-3 text-sm text-heading outline-none focus:border-brand"
               >
+                {loadingFacilities ? <option value="">Loading assigned facilities...</option> : null}
+                {!loadingFacilities && facilities.length === 0 ? (
+                  <option value="">No assigned facilities found</option>
+                ) : null}
                 {facilities.map((facility) => (
                   <option key={facility.id} value={facility.id}>
                     {facility.name} ({facility.type})
@@ -258,8 +275,8 @@ export default function AdminSlotsPage() {
             <div className="sm:col-span-2">
               <button
                 type="submit"
-                disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-heading disabled:opacity-60"
+                disabled={submitting || loadingFacilities || !form.facilityId}
+                className="inline-flex items-center gap-2 rounded-full bg-ambercare px-6 py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
                 <PlusCircle className="h-4 w-4" />
                 Create slot

@@ -23,7 +23,7 @@ const timeline = [
 
 export function HealthRecordsShowcase() {
   return (
-    <section className="bg-background py-20 text-primary-text sm:py-28">
+    <section className="bg-[#f3f1ef] py-20 text-primary-text sm:py-28">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8 text-center">
         <FadeIn>
           <EditorialTitle
