@@ -41,6 +41,7 @@ export class AuditLogsService {
     "facility_operator",
     "pharmacy_admin",
     "ambulance_admin",
+    "ambulance_driver",
     "blood_bank_admin",
   ] as const;
 

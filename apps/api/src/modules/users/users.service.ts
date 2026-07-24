@@ -31,6 +31,7 @@ export class UsersService {
       "patient",
       "pharmacy_admin",
       "ambulance_admin",
+      "ambulance_driver",
       "blood_bank_admin",
     ];
   }
@@ -55,6 +56,7 @@ export class UsersService {
       "facility_operator",
       "pharmacy_admin",
       "ambulance_admin",
+      "ambulance_driver",
         "blood_bank_admin",
       ]);
     }
@@ -65,6 +67,7 @@ export class UsersService {
       "facility_operator",
       "pharmacy_admin",
       "ambulance_admin",
+      "ambulance_driver",
         "blood_bank_admin",
       ]);
     }

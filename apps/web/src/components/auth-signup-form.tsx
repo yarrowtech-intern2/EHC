@@ -24,7 +24,7 @@ import {
 
 const signupSchema = z
   .object({
-    actorType: z.enum(["tenant_admin", "facility_operator"]),
+    actorType: z.enum(["tenant_admin", "facility_operator", "ambulance_driver"]),
     signupMethod: z.enum(["email_password", "google", "magic_link"]),
     fullName: z.string().min(2, "Enter your name"),
     email: z.string().email("Enter a valid email").optional().or(z.literal("")),
@@ -64,6 +64,7 @@ const steps = ["Access", "Method", "Details", "Review"] as const;
 const roleChoices = [
   { value: "tenant_admin", label: "Tenant Admin" },
   { value: "facility_operator", label: "Facility Operator" },
+  { value: "ambulance_driver", label: "Ambulance Driver" },
 ] as const;
 
 const methodChoices = [

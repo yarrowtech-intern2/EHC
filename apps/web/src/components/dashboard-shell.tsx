@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
+  Ambulance,
   Bell,
   CalendarDays,
   ClipboardPenLine,
@@ -43,6 +44,7 @@ const navItems: ShellLink[] = [
       "facility_operator",
       "pharmacy_admin",
       "ambulance_admin",
+      "ambulance_driver",
       "blood_bank_admin",
     ],
   },
@@ -65,6 +67,18 @@ const navItems: ShellLink[] = [
     actors: ["super_admin", "tenant_admin", "facility_operator"],
   },
   {
+    label: "Ambulance ops",
+    href: "/admin/ambulance",
+    icon: Ambulance,
+    actors: ["super_admin", "tenant_admin", "facility_operator", "ambulance_admin", "ambulance_driver"],
+  },
+  {
+    label: "Driver verification",
+    href: "/admin/ambulance-verification",
+    icon: ShieldCheck,
+    actors: ["super_admin"],
+  },
+  {
     label: "Team",
     href: "/admin/team",
     icon: Users,
@@ -74,6 +88,7 @@ const navItems: ShellLink[] = [
       "facility_operator",
       "pharmacy_admin",
       "ambulance_admin",
+      "ambulance_driver",
       "blood_bank_admin",
     ],
   },
@@ -87,6 +102,7 @@ const navItems: ShellLink[] = [
       "facility_operator",
       "pharmacy_admin",
       "ambulance_admin",
+      "ambulance_driver",
       "blood_bank_admin",
     ],
   },
@@ -112,6 +128,7 @@ const navItems: ShellLink[] = [
 
 const roleLabels: Record<AppActorType, string> = {
   ambulance_admin: "Ambulance service",
+  ambulance_driver: "Ambulance driver",
   blood_bank_admin: "Blood bank service",
   doctor: "Doctor",
   facility_operator: "Facility operator",
@@ -120,6 +137,9 @@ const roleLabels: Record<AppActorType, string> = {
   super_admin: "Super admin",
   tenant_admin: "Tenant admin",
 };
+
+const logoImage =
+  "https://res.cloudinary.com/dc3qprub3/image/upload/v1784888990/3_kxglwk.png";
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -153,16 +173,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         <aside className="hidden w-[250px] shrink-0 bg-white px-5 py-6 lg:flex lg:flex-col">
           <Link
             href={dashboardPath}
-            className="flex items-center gap-3"
+            className="flex h-11 items-center"
             aria-label="Dashboard home"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0057FF] text-sm font-semibold text-white shadow-[0_12px_28px_rgba(0,87,255,0.28)]">
-              E
-            </span>
-            <span>
-              <span className="block text-base font-semibold text-ink">EHC</span>
-              <span className="block text-xs text-slate-500">Healthcare OS</span>
-            </span>
+            <img
+              src={logoImage}
+              alt="EHC"
+              className="h-8 w-auto select-none"
+              loading="eager"
+              decoding="async"
+              draggable={false}
+            />
           </Link>
 
           <p className="mt-10 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -238,10 +259,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
               <Link
                 href={dashboardPath}
-                className="hidden h-11 w-11 items-center justify-center rounded-full bg-[#0057FF] text-sm font-semibold text-white sm:flex lg:hidden"
+                className="hidden h-11 items-center justify-center sm:flex lg:hidden"
                 aria-label="Dashboard home"
               >
-                E
+                <img
+                  src={logoImage}
+                  alt="EHC"
+                  className="h-7 w-auto select-none"
+                  loading="eager"
+                  decoding="async"
+                  draggable={false}
+                />
               </Link>
 
               <div className="min-w-0">
@@ -303,15 +331,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <Link
                 href={dashboardPath}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3"
+                className="flex items-center"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0057FF] text-sm font-semibold text-white">
-                  E
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-ink">EHC</span>
-                  <span className="block text-xs text-slate-500">{roleLabel}</span>
-                </span>
+                <img
+                  src={logoImage}
+                  alt="EHC"
+                  className="h-7 w-auto select-none"
+                  loading="eager"
+                  decoding="async"
+                  draggable={false}
+                />
               </Link>
               <button
                 type="button"

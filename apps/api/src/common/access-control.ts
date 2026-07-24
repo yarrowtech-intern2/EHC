@@ -14,6 +14,7 @@ export type AppRole =
   | "patient"
   | "pharmacy_admin"
   | "ambulance_admin"
+  | "ambulance_driver"
   | "blood_bank_admin";
 
 export type FacilityAccess = {

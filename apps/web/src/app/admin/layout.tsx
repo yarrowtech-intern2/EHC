@@ -14,6 +14,7 @@ export default function AdminLayout({
         "facility_operator",
         "pharmacy_admin",
         "ambulance_admin",
+        "ambulance_driver",
         "blood_bank_admin",
       ]}
     >

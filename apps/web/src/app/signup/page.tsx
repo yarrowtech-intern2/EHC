@@ -4,7 +4,7 @@ import { ArrowLeft, Cross } from "lucide-react";
 import { PatientSignupForm } from "@/components/patient-signup-form";
 
 const logoImage =
-  "https://res.cloudinary.com/dc3qprub3/image/upload/f_auto,q_auto,w_160/v1784277032/1_i9ichu.png";
+  "https://res.cloudinary.com/dc3qprub3/image/upload/v1784888990/3_kxglwk.png";
 
 const navLinks = [
   { label: "Services", href: "/landing2#services" },

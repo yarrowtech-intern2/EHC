@@ -42,5 +42,11 @@ export async function apiRequest<T>(
     throw new Error(message);
   }
 
-  return response.json() as Promise<T>;
+  const responseText = await response.text();
+
+  if (!responseText) {
+    return null as T;
+  }
+
+  return JSON.parse(responseText) as T;
 }

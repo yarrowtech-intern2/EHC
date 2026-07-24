@@ -12,6 +12,7 @@ export type AppActorType =
   | "patient"
   | "pharmacy_admin"
   | "ambulance_admin"
+  | "ambulance_driver"
   | "blood_bank_admin";
 
 export type FacilityType =
@@ -96,6 +97,7 @@ export function getActorType(user: User | null | undefined): AppActorType | null
     value === "doctor" ||
     value === "pharmacy_admin" ||
     value === "ambulance_admin" ||
+    value === "ambulance_driver" ||
     value === "blood_bank_admin"
   ) {
     return value;
@@ -155,6 +157,10 @@ export function getAuthRedirectPath(
     return "/doctor";
   }
 
+  if (actorType === "ambulance_driver") {
+    return "/ambulance-driver-onboarding";
+  }
+
   return "/admin";
 }
 
@@ -173,6 +179,7 @@ export function getDashboardPath(actorType: AppActorType | null | undefined) {
     actorType === "facility_operator" ||
     actorType === "pharmacy_admin" ||
     actorType === "ambulance_admin" ||
+    actorType === "ambulance_driver" ||
     actorType === "blood_bank_admin"
   ) {
     return "/admin";
@@ -191,6 +198,7 @@ export function getPrimaryActorType(
     "doctor",
     "pharmacy_admin",
     "ambulance_admin",
+    "ambulance_driver",
     "blood_bank_admin",
     "facility_operator",
     "patient",

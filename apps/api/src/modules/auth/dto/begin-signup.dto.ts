@@ -4,6 +4,7 @@ export enum ActorType {
   PATIENT = "patient",
   TENANT_ADMIN = "tenant_admin",
   FACILITY_OPERATOR = "facility_operator",
+  AMBULANCE_DRIVER = "ambulance_driver",
 }
 
 export enum SignupMethod {
